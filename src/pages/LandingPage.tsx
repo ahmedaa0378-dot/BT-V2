@@ -1,166 +1,81 @@
-// src/pages/LandingPage.tsx
 import { Link } from "react-router-dom";
-
-const box: React.CSSProperties = {
-  border: "1px solid #e5e7eb",
-  borderRadius: 16,
-  padding: 20,
-  background: "#fff",
-};
-const btnPrimary: React.CSSProperties = {
-  background: "#111827",
-  color: "#fff",
-  borderRadius: 12,
-  padding: "12px 18px",
-  fontWeight: 600,
-  textDecoration: "none",
-  display: "inline-block",
-};
-const btnSecondary: React.CSSProperties = {
-  background: "#fff",
-  color: "#111827",
-  border: "1px solid #e5e7eb",
-  borderRadius: 12,
-  padding: "12px 18px",
-  fontWeight: 600,
-  textDecoration: "none",
-  display: "inline-block",
-};
+import logo from "../assets/logo-bubble-dollar.svg";
+import { Mic, PieChart, Wallet } from "lucide-react";
 
 export default function LandingPage() {
   return (
-    <main style={{ maxWidth: 1100, margin: "0 auto", padding: "24px" }}>
-      {/* Hero */}
-      <section
-        style={{
-          display: "grid",
-          gridTemplateColumns: "1.2fr 1fr",
-          gap: 24,
-          alignItems: "center",
-          marginTop: 24,
-          marginBottom: 32,
-        }}
-      >
-        <div>
-          <div style={{ fontSize: 40, fontWeight: 800, lineHeight: 1.1 }}>
-            Talk to your budget.
+    <main className="min-h-screen bg-white dark:bg-base-900 text-slate-900 dark:text-slate-100">
+      {/* Top bar */}
+      <div className="border-b bg-white/80 backdrop-blur dark:bg-base-900/80 dark:border-base-700">
+        <div className="mx-auto max-w-6xl px-4 h-14 flex items-center justify-between">
+          <div className="flex items-center gap-2">
+            <img src={logo} alt="Budget Talk" className="h-7 w-7" />
+            <span className="font-semibold">Budget Talk</span>
           </div>
-          <p style={{ color: "#4b5563", marginTop: 12, fontSize: 16 }}>
-            Set monthly budgets, add expenses by voice, and track everything on
-            a simple dashboard.
-          </p>
-          <div style={{ marginTop: 20, display: "flex", gap: 12 }}>
-            {/* For now send to /app (your existing interface) */}
-            <Link to="/app" style={btnPrimary}>
-              Get Started
-            </Link>
-            <a href="#how" style={btnSecondary}>
-              How it works
-            </a>
+          <div className="flex items-center gap-2">
+            <Link to="/app" className="px-3 py-1.5 rounded-lg bg-brand-grad text-white shadow-soft">Get Started</Link>
           </div>
         </div>
+      </div>
 
-        {/* Right side preview box – you can drop a screenshot later */}
-        <div style={box}>
-          <div
-            style={{
-              height: 260,
-              border: "1px dashed #d1d5db",
-              borderRadius: 12,
-              display: "flex",
-              alignItems: "center",
-              justifyContent: "center",
-              color: "#6b7280",
-            }}
-          >
+      {/* Hero */}
+      <section className="mx-auto max-w-6xl px-4 py-12 grid md:grid-cols-2 gap-8 items-center">
+        <div>
+          <h1 className="text-4xl font-extrabold tracking-tight">
+            Talk to your <span className="bg-brand-grad bg-clip-text text-transparent">budget</span>.
+          </h1>
+          <p className="mt-3 text-slate-600 dark:text-slate-300">
+            Set monthly budgets, add expenses by voice, and watch your dashboard update instantly.
+          </p>
+          <div className="mt-6 flex gap-3">
+            <Link to="/app" className="rounded-xl bg-brand-grad px-5 py-3 text-white shadow-soft">Get Started</Link>
+            <a href="#how" className="rounded-xl border px-5 py-3 dark:border-base-700">How it works</a>
+          </div>
+          <div className="mt-4 flex items-center gap-3 text-sm text-slate-500 dark:text-slate-400">
+            <div className="inline-flex items-center gap-1"><Wallet className="h-4 w-4"/> Set budgets</div>
+            <div className="inline-flex items-center gap-1"><Mic className="h-4 w-4"/> Add by voice</div>
+            <div className="inline-flex items-center gap-1"><PieChart className="h-4 w-4"/> Clear insights</div>
+          </div>
+        </div>
+        <div className="rounded-2xl border bg-white dark:bg-base-900 dark:border-base-700 shadow-soft p-4">
+          <div className="h-[260px] rounded-xl border border-dashed dark:border-base-700 grid place-items-center text-slate-500 dark:text-slate-400">
             Dashboard preview (add screenshot later)
           </div>
         </div>
       </section>
 
       {/* Features */}
-      <section style={{ marginBottom: 28 }}>
-        <div style={{ fontSize: 22, fontWeight: 700, marginBottom: 12 }}>
-          What you can do
-        </div>
-        <div
-          style={{
-            display: "grid",
-            gridTemplateColumns: "repeat(3, 1fr)",
-            gap: 16,
-          }}
-        >
-          <div style={box}>
-            <div style={{ fontWeight: 700 }}>Set Budgets</div>
-            <p style={{ color: "#4b5563", marginTop: 6 }}>
-              Create monthly budgets by category (Travel, Food, Bills, more).
-            </p>
-          </div>
-          <div style={box}>
-            <div style={{ fontWeight: 700 }}>Add by Voice</div>
-            <p style={{ color: "#4b5563", marginTop: 6 }}>
-              Say “Travel 200 dollars” — we’ll capture category, amount, date.
-            </p>
-          </div>
-          <div style={box}>
-            <div style={{ fontWeight: 700 }}>Track & Insights</div>
-            <p style={{ color: "#4b5563", marginTop: 6 }}>
-              See spend vs budget, trends, and friendly alerts.
-            </p>
-          </div>
+      <section className="mx-auto max-w-6xl px-4 pb-10">
+        <h2 className="text-2xl font-semibold">What you can do</h2>
+        <div className="mt-4 grid sm:grid-cols-2 md:grid-cols-3 gap-4">
+          {[
+            {title:"Set Budgets", desc:"Create monthly limits by category like Travel, Food, Bills."},
+            {title:"Add by Voice", desc:"Say “Travel 200 dollars today” — we parse category, amount, date."},
+            {title:"Track & Insights", desc:"See spend vs budget, trends, and alerts when you’re close."},
+          ].map(card => (
+            <div key={card.title} className="rounded-2xl border bg-white dark:bg-base-900 dark:border-base-700 p-5 shadow-soft">
+              <div className="font-semibold">{card.title}</div>
+              <p className="mt-2 text-slate-600 dark:text-slate-300 text-sm">{card.desc}</p>
+            </div>
+          ))}
         </div>
       </section>
 
       {/* How it works */}
-      <section id="how" style={{ marginBottom: 40 }}>
-        <div style={{ fontSize: 22, fontWeight: 700, marginBottom: 12 }}>
-          How it works
-        </div>
-        <div
-          style={{
-            display: "grid",
-            gridTemplateColumns: "repeat(3, 1fr)",
-            gap: 16,
-          }}
-        >
-          <div style={box}>
-            <div style={{ color: "#6b7280", fontSize: 14 }}>Step 1</div>
-            <div style={{ fontWeight: 700, marginTop: 4 }}>
-              Create your account
-            </div>
-            <p style={{ color: "#4b5563", marginTop: 6 }}>
-              Choose Personal or Business (invite teammates later).
-            </p>
-          </div>
-          <div style={box}>
-            <div style={{ color: "#6b7280", fontSize: 14 }}>Step 2</div>
-            <div style={{ fontWeight: 700, marginTop: 4 }}>Set budgets</div>
-            <p style={{ color: "#4b5563", marginTop: 6 }}>
-              Add categories and limits for the month.
-            </p>
-          </div>
-          <div style={box}>
-            <div style={{ color: "#6b7280", fontSize: 14 }}>Step 3</div>
-            <div style={{ fontWeight: 700, marginTop: 4 }}>
-              Add expenses by voice
-            </div>
-            <p style={{ color: "#4b5563", marginTop: 6 }}>
-              Speak or type, and see your dashboard update instantly.
-            </p>
-          </div>
-        </div>
+      <section id="how" className="mx-auto max-w-6xl px-4 pb-16">
+        <h2 className="text-2xl font-semibold">How it works</h2>
+        <ol className="mt-4 grid md:grid-cols-3 gap-4">
+          {["Create account (Personal or Business)", "Set your monthly budgets", "Add expenses by voice or form"].map((s,i)=>(
+            <li key={i} className="rounded-2xl border bg-white dark:bg-base-900 dark:border-base-700 p-5 shadow-soft">
+              <div className="text-xs text-slate-500 dark:text-slate-400">Step {i+1}</div>
+              <div className="mt-1 font-medium">{s}</div>
+            </li>
+          ))}
+        </ol>
       </section>
 
-      {/* Footer */}
-      <footer
-        style={{
-          borderTop: "1px solid #e5e7eb",
-          paddingTop: 16,
-          color: "#6b7280",
-          fontSize: 14,
-        }}
-      >
-        © {new Date().getFullYear()} BudgetTalk
+      <footer className="border-t dark:border-base-700 py-6 text-center text-sm text-slate-500 dark:text-slate-400">
+        © {new Date().getFullYear()} Budget Talk
       </footer>
     </main>
   );
