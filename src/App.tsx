@@ -162,4 +162,7 @@ export default function App() {
         <Route path="/" element={<LandingPage />} />
         <Route path="/app" element={<BudgetTalkApp />} />
         <Route path="*" element={<Navigate to="/" replace />} />
-      </Ro
+      </Routes>
+    </BrowserRouter>
+  );
+}
