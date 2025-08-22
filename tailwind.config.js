@@ -1,50 +1,49 @@
-/** @type {import('tailwindcss').Config} */
-export default {
-  content: ['./index.html', './src/**/*.{js,ts,jsx,tsx}'],
-  theme: {
-    extend: {},
-  },
-  plugins: [],
-};
 // tailwind.config.ts
 import type { Config } from "tailwindcss";
 
 export default {
   content: ["./index.html", "./src/**/*.{ts,tsx}"],
+  darkMode: "class", // <- enable dark mode via class
   theme: {
     extend: {
       colors: {
+        // Modern fintech palette
+        base: {
+          // deep slate requested
+          900: "#0f172a", // primary dark bg
+          800: "#111827",
+          700: "#1f2937",
+          600: "#334155",
+        },
         brand: {
-          50:  "#f0f9ff",
-          100: "#e0f2fe",
-          200: "#bae6fd",
-          300: "#7dd3fc",
-          400: "#38bdf8",
-          500: "#0ea5e9",   // primary
-          600: "#0284c7",
-          700: "#0369a1",
-          800: "#075985",
-          900: "#0c4a6e"
+          // bold gradient anchors (indigo -> violet)
+          indigo: "#6366f1",
+          violet: "#a855f7",
+          // solid primary if you need one color
+          500: "#7c3aed"
         },
         accent: {
-          500: "#f97316"   // orange accents
+          // cyan pops well on #0f172a
+          500: "#06b6d4",
+          600: "#0891b2"
         }
       },
       boxShadow: {
-        soft: "0 6px 24px -12px rgb(0 0 0 / 0.15)"
-      },
-      borderRadius: {
-        xl2: "1rem",
+        soft: "0 8px 28px -12px rgb(0 0 0 / 0.25)"
       },
       keyframes: {
         pulseRing: {
-          "0%": { transform: "scale(0.9)", boxShadow: "0 0 0 0 rgba(14,165,233,0.6)" },
-          "70%": { transform: "scale(1)", boxShadow: "0 0 0 10px rgba(14,165,233,0)" },
-          "100%": { transform: "scale(0.9)", boxShadow: "0 0 0 0 rgba(14,165,233,0)" }
+          "0%": { transform: "scale(0.95)", boxShadow: "0 0 0 0 rgba(99,102,241,0.45)" },
+          "70%": { transform: "scale(1)", boxShadow: "0 0 0 12px rgba(99,102,241,0)" },
+          "100%": { transform: "scale(0.95)", boxShadow: "0 0 0 0 rgba(99,102,241,0)" }
         }
       },
       animation: {
-        pulseRing: "pulseRing 1.5s infinite"
+        pulseRing: "pulseRing 1.6s infinite"
+      },
+      backgroundImage: {
+        "brand-grad":
+          "linear-gradient(135deg, #6366f1 0%, #7c3aed 40%, #a855f7 100%)"
       }
     },
   },
