@@ -1,4 +1,10 @@
-import React, { useState, useEffect } from 'react';
+import React, { useState } from 'react';
+import { BrowserRouter, Routes, Route, Navigate } from 'react-router-dom';
+
+// Landing page (from Step 1-A)
+import LandingPage from './pages/LandingPage';
+
+// ---- Your existing imports (UNCHANGED) ----
 import { Header } from './components/Header';
 import { Dashboard } from './components/Dashboard';
 import { ExpenseForm } from './components/ExpenseForm';
@@ -9,9 +15,14 @@ import { useExpenses } from './hooks/useExpenses';
 import { useBudgets } from './hooks/useBudgets';
 import { useVoiceRecording } from './hooks/useVoiceRecording';
 
+// Keep your existing View type
 type View = 'dashboard' | 'add-expense' | 'expenses' | 'budgets' | 'split-expense';
 
-function App() {
+/**
+ * BudgetTalkApp = your current app UI (moved into its own component)
+ * Nothing inside here changes behavior vs your original file.
+ */
+function BudgetTalkApp() {
   const [currentView, setCurrentView] = useState<View>('dashboard');
   const [selectedExpenseId, setSelectedExpenseId] = useState<string | null>(null);
   
@@ -54,7 +65,7 @@ function App() {
               if (selectedExpense) {
                 updateExpense(selectedExpense.id, expenseData);
               } else {
-                // Handle async addExpense
+                // Preserve your async add flow
                 const handleAddExpense = async () => {
                   try {
                     await addExpense(expenseData);
@@ -138,4 +149,17 @@ function App() {
   );
 }
 
-export default App;
+/**
+ * App = Router wrapper
+ * - "/"     -> LandingPage (new)
+ * - "/app"  -> your existing UI (BudgetTalkApp)
+ * - any other path redirects to "/"
+ */
+export default function App() {
+  return (
+    <BrowserRouter>
+      <Routes>
+        <Route path="/" element={<LandingPage />} />
+        <Route path="/app" element={<BudgetTalkApp />} />
+        <Route path="*" element={<Navigate to="/" replace />} />
+      </Ro
