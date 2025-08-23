@@ -837,7 +837,6 @@ const LoginPage = ({ onLogin, onBack }) => {
     const { error } = await signInWithGoogle();
     
     if (!error) {
-      // For demo purposes, simulate successful login
       onLogin({ 
         name: accountType === 'personal' ? 'Personal User' : 'Business User', 
         type: accountType,
@@ -881,7 +880,6 @@ const LoginPage = ({ onLogin, onBack }) => {
     });
   };
 
-  // Account Selection View
   if (currentView === 'selection') {
     return (
       <div className="min-h-screen bg-gradient-to-br from-purple-900 via-blue-900 to-indigo-900 flex items-center justify-center">
@@ -925,7 +923,6 @@ const LoginPage = ({ onLogin, onBack }) => {
     );
   }
 
-  // Personal Login View (Simple Google Auth only)
   if (currentView === 'personal-login') {
     return (
       <div className="min-h-screen bg-gradient-to-br from-purple-900 via-blue-900 to-indigo-900 flex items-center justify-center">
