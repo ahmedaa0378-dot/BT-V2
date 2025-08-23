@@ -1,141 +1,67 @@
-import React, { useState, useEffect, createContext, useContext } from "react";
-import {
-  ChevronRight,
-  Play,
-  Check,
-  Star,
-  ArrowRight,
-  Menu,
-  X,
-  Mic,
-  DollarSign,
-  TrendingUp,
-  Shield,
-  Users,
-  Smartphone,
-  BarChart3,
-  Plus,
-  List,
-  LogOut,
-  Upload,
-  ChevronLeft,
-  Sun,
-  Moon,
-} from "lucide-react";
+import React, { useState, useEffect, createContext, useContext } from 'react';
+import { ChevronRight, Play, Check, Star, ArrowRight, Menu, X, Mic, DollarSign, TrendingUp, Shield, Users, Smartphone, BarChart3, Plus, List, LogOut, Upload, Calendar, ChevronLeft, Sun, Moon, Camera } from 'lucide-react';
 
-/* =========================
-   THEME CONTEXT
-   ========================= */
-const ThemeContext = createContext<{ isDarkMode: boolean; toggleTheme: () => void } | null>(null);
+// Theme Context
+const ThemeContext = createContext();
 
-const ThemeProvider: React.FC<{ children: React.ReactNode }> = ({ children }) => {
+const ThemeProvider = ({ children }) => {
   const [isDarkMode, setIsDarkMode] = useState(false);
-  const toggleTheme = () => setIsDarkMode((d) => !d);
+
+  const toggleTheme = () => {
+    setIsDarkMode(!isDarkMode);
+  };
+
   return (
     <ThemeContext.Provider value={{ isDarkMode, toggleTheme }}>
-      <div className={isDarkMode ? "dark" : ""}>{children}</div>
+      <div className={isDarkMode ? 'dark' : ''}>
+        {children}
+      </div>
     </ThemeContext.Provider>
   );
 };
 
 const useTheme = () => {
-  const ctx = useContext(ThemeContext);
-  if (!ctx) throw new Error("useTheme must be used within a ThemeProvider");
-  return ctx;
+  const context = useContext(ThemeContext);
+  if (!context) {
+    throw new Error('useTheme must be used within a ThemeProvider');
+  }
+  return context;
 };
 
-/* =========================
-   LOGO
-   ========================= */
-const BudgetTalkLogo: React.FC<{ size?: "small" | "default" | "large"; className?: string }> = ({
-  size = "default",
-  className = "",
-}) => {
-  const sizeClasses: Record<string, string> = {
+// Logo Component
+const BudgetTalkLogo = ({ size = "default", className = "" }) => {
+  const sizeClasses = {
     small: "w-8 h-8",
-    default: "w-12 h-12",
-    large: "w-16 h-16",
+    default: "w-12 h-12", 
+    large: "w-16 h-16"
   };
-  const textSizeClasses: Record<string, string> = {
+
+  const textSizeClasses = {
     small: "text-lg",
     default: "text-xl",
-    large: "text-2xl",
+    large: "text-2xl"
   };
 
   return (
     <div className={`flex items-center space-x-3 ${className}`}>
       <div className={`${sizeClasses[size]} relative`}>
-        <div className="absolute inset-0 bg-gradient-to-br from-purple-500 to-blue-600 rounded-xl shadow-lg transform rotate-3" />
+        <div className="absolute inset-0 bg-gradient-to-br from-purple-500 to-blue-600 rounded-xl shadow-lg transform rotate-3"></div>
         <div className="relative bg-gradient-to-br from-purple-400 to-blue-500 rounded-xl p-2 shadow-md">
           <svg viewBox="0 0 24 24" className="w-full h-full text-white" fill="currentColor">
-            <path d="M12 2C6.48 2 2 6.48 2 12c0 1.54.36 3.04 1.05 4.4L2 22l5.6-1.05C9.96 21.64 11.46 22 13 22c5.52 0 10-4.48 10-10S17.52 2 12 2z" />
-            <path
-              d="M12 6v2m0 8v2m-1-6h2a2 2 0 100-4h-2a2 2 0 100 4z"
-              stroke="currentColor"
-              strokeWidth="1.5"
-              fill="none"
-            />
-            <path
-              d="M17 8c0 0 1 1 1 4s-1 4-1 4M19 6c0 0 2 2 2 6s-2 6-2 6"
-              stroke="currentColor"
-              strokeWidth="1"
-              fill="none"
-              opacity="0.6"
-            />
+            <path d="M12 2C6.48 2 2 6.48 2 12c0 1.54.36 3.04 1.05 4.4L2 22l5.6-1.05C9.96 21.64 11.46 22 13 22c5.52 0 10-4.48 10-10S17.52 2 12 2z"/>
+            <path d="M12 6v2m0 8v2m-1-6h2a2 2 0 100-4h-2a2 2 0 100 4z" stroke="currentColor" strokeWidth="1.5" fill="none"/>
+            <path d="M17 8c0 0 1 1 1 4s-1 4-1 4M19 6c0 0 2 2 2 6s-2 6-2 6" stroke="currentColor" strokeWidth="1" fill="none" opacity="0.6"/>
           </svg>
         </div>
       </div>
-      <div
-        className={`font-bold bg-gradient-to-r from-purple-600 to-blue-600 bg-clip-text text-transparent ${textSizeClasses[size]}`}
-      >
+      <div className={`font-bold bg-gradient-to-r from-purple-600 to-blue-600 bg-clip-text text-transparent ${textSizeClasses[size]}`}>
         Budget<span className="font-extrabold">Talk</span>
       </div>
     </div>
   );
 };
 
-/* =========================
-   MOCK SUPABASE (DEMO ONLY)
-   ========================= */
-// Replace the existing supabase configuration with this:
-
-// For now, let's simulate real Google auth
-const simulateGoogleAuth = () => {
-  return new Promise((resolve) => {
-    // Simulate the Google OAuth popup
-    const confirmed = confirm(
-      "🔐 Google Authentication\n\n" +
-      "This would normally open Google's login popup.\n" +
-      "For demo purposes, click 'OK' to simulate successful login,\n" +
-      "or 'Cancel' to simulate login failure."
-    );
-    
-    setTimeout(() => {
-      if (confirmed) {
-        resolve({
-          data: {
-            user: {
-              id: 'demo-user-' + Date.now(),
-              email: 'demo@example.com',
-              user_metadata: {
-                full_name: 'Demo User',
-                avatar_url: 'https://via.placeholder.com/40'
-              }
-            }
-          },
-          error: null
-        });
-      } else {
-        resolve({
-          data: { user: null },
-          error: { message: 'Login cancelled by user' }
-        });
-      }
-    }, 1000); // Simulate network delay
-  });
-};
-
-// Replace the existing useAuth hook with this:
+// Auth Hook
 const useAuth = () => {
   const [user, setUser] = useState(null);
   const [loading, setLoading] = useState(false);
@@ -144,21 +70,35 @@ const useAuth = () => {
     setLoading(true);
     
     try {
-      const result = await simulateGoogleAuth();
+      const confirmed = confirm(
+        "🔐 Google Authentication\n\n" +
+        "This would normally open Google's login popup.\n" +
+        "For demo purposes, click 'OK' to simulate successful login,\n" +
+        "or 'Cancel' to simulate login failure."
+      );
       
-      if (result.error) {
-        console.error('Authentication error:', result.error.message);
-        return { error: result.error };
-      }
-      
-      setUser(result.data.user);
-      return { error: null, user: result.data.user };
+      setTimeout(() => {
+        if (confirmed) {
+          const mockUser = {
+            id: 'demo-user-' + Date.now(),
+            email: 'demo@example.com',
+            user_metadata: {
+              full_name: 'Demo User',
+              avatar_url: 'https://via.placeholder.com/40'
+            }
+          };
+          setUser(mockUser);
+          setLoading(false);
+          return { error: null, user: mockUser };
+        } else {
+          setLoading(false);
+          return { error: { message: 'Login cancelled by user' } };
+        }
+      }, 1000);
       
     } catch (error) {
-      console.error('Authentication failed:', error);
-      return { error: { message: 'Authentication failed' } };
-    } finally {
       setLoading(false);
+      return { error: { message: 'Authentication failed' } };
     }
   };
 
@@ -175,75 +115,79 @@ const useAuth = () => {
   };
 };
 
-/* =========================
-   EXPENSE FORM (MODAL)
-   ========================= */
-const ExpenseForm: React.FC<{
-  onClose: () => void;
-  onSave: (expense: any) => void;
-  expenses: any[];
-  setExpenses: React.Dispatch<React.SetStateAction<any[]>>;
-}> = ({ onClose, onSave, expenses, setExpenses }) => {
+// Expense Form Component
+const ExpenseForm = ({ onClose, onSave, expenses, setExpenses }) => {
+  const { isDarkMode } = useTheme();
   const [formData, setFormData] = useState({
-    description: "",
-    amount: "",
-    category: "",
-    date: new Date().toISOString().split("T")[0],
-    receipt: null as File | null,
+    description: '',
+    amount: '',
+    category: '',
+    date: new Date().toISOString().split('T')[0],
+    receipt: null
   });
   const [isVoiceRecording, setIsVoiceRecording] = useState(false);
 
   const categories = [
-    "Food & Dining",
-    "Transportation",
-    "Shopping",
-    "Entertainment",
-    "Bills & Utilities",
-    "Healthcare",
-    "Travel",
-    "Education",
-    "Business",
-    "Other",
+    'Food & Dining',
+    'Transportation',
+    'Shopping',
+    'Entertainment',
+    'Bills & Utilities',
+    'Healthcare',
+    'Travel',
+    'Education',
+    'Business',
+    'Other'
   ];
 
-  const handleInputChange = (e: React.ChangeEvent<HTMLInputElement | HTMLSelectElement>) => {
-    const { name, value } = e.target as any;
-    setFormData((p) => ({ ...p, [name]: value }));
+  const handleInputChange = (e) => {
+    const { name, value } = e.target;
+    setFormData(prev => ({
+      ...prev,
+      [name]: value
+    }));
   };
 
   const handleVoiceInput = () => {
     setIsVoiceRecording(true);
     setTimeout(() => {
       setIsVoiceRecording(false);
-      setFormData((prev) => ({
+      setFormData(prev => ({
         ...prev,
-        description: "Lunch at downtown cafe",
-        amount: "25",
-        category: "Food & Dining",
+        description: 'Lunch at downtown cafe',
+        amount: '25',
+        category: 'Food & Dining'
       }));
     }, 3000);
   };
 
-  const handleReceiptUpload = (e: React.ChangeEvent<HTMLInputElement>) => {
-    const file = e.target.files?.[0] ?? null;
-    setFormData((p) => ({ ...p, receipt: file }));
+  const handleReceiptUpload = (e) => {
+    const file = e.target.files[0];
+    if (file) {
+      setFormData(prev => ({
+        ...prev,
+        receipt: file
+      }));
+    }
   };
 
   const handleSave = () => {
     if (!formData.description || !formData.amount || !formData.category) {
-      alert("Please fill in all required fields");
+      alert('Please fill in all required fields');
       return;
     }
+
     const newExpense = {
       id: Date.now(),
       description: formData.description,
       amount: parseFloat(formData.amount),
       category: formData.category,
       date: formData.date,
-      receipt: formData.receipt,
+      receipt: formData.receipt
     };
-    const updated = [newExpense, ...expenses];
-    setExpenses(updated);
+
+    const updatedExpenses = [newExpense, ...expenses];
+    setExpenses(updatedExpenses);
     onSave(newExpense);
     onClose();
   };
@@ -253,15 +197,12 @@ const ExpenseForm: React.FC<{
       <div className="bg-white dark:bg-gray-800 rounded-2xl p-6 w-full max-w-md max-h-[90vh] overflow-y-auto">
         <div className="flex items-center justify-between mb-6">
           <div className="flex items-center space-x-3">
-            <button
-              onClick={onClose}
-              className="text-gray-600 dark:text-gray-400 hover:text-gray-800 dark:hover:text-gray-200"
-            >
+            <button onClick={onClose} className="text-gray-600 dark:text-gray-400 hover:text-gray-800 dark:hover:text-gray-200">
               <ChevronLeft className="w-6 h-6" />
             </button>
             <h2 className="text-xl font-semibold text-gray-900 dark:text-white">Add Expense</h2>
           </div>
-
+          
           <button
             onClick={handleVoiceInput}
             disabled={isVoiceRecording}
@@ -269,19 +210,15 @@ const ExpenseForm: React.FC<{
           >
             <div className="relative">
               <Mic className="w-4 h-4" />
-              {isVoiceRecording && (
-                <div className="absolute -inset-1 bg-blue-400 rounded-full animate-ping opacity-30" />
-              )}
+              {isVoiceRecording && <div className="absolute -inset-1 bg-blue-400 rounded-full animate-ping opacity-30"></div>}
             </div>
-            <span>{isVoiceRecording ? "Listening..." : "Voice Input"}</span>
+            <span>{isVoiceRecording ? 'Listening...' : 'Voice Input'}</span>
           </button>
         </div>
 
         <div className="space-y-6">
           <div>
-            <label className="block text-sm font-medium text-gray-700 dark:text-gray-300 mb-2">
-              Description
-            </label>
+            <label className="block text-sm font-medium text-gray-700 dark:text-gray-300 mb-2">Description</label>
             <input
               type="text"
               name="description"
@@ -293,9 +230,7 @@ const ExpenseForm: React.FC<{
           </div>
 
           <div>
-            <label className="block text-sm font-medium text-gray-700 dark:text-gray-300 mb-2">
-              Amount
-            </label>
+            <label className="block text-sm font-medium text-gray-700 dark:text-gray-300 mb-2">Amount</label>
             <div className="relative">
               <span className="absolute left-4 top-3 text-gray-500 dark:text-gray-400">$</span>
               <input
@@ -310,9 +245,7 @@ const ExpenseForm: React.FC<{
           </div>
 
           <div>
-            <label className="block text-sm font-medium text-gray-700 dark:text-gray-300 mb-2">
-              Category
-            </label>
+            <label className="block text-sm font-medium text-gray-700 dark:text-gray-300 mb-2">Category</label>
             <select
               name="category"
               value={formData.category}
@@ -320,18 +253,14 @@ const ExpenseForm: React.FC<{
               className="w-full px-4 py-3 border border-gray-300 dark:border-gray-600 rounded-xl focus:ring-2 focus:ring-purple-500 focus:border-transparent bg-white dark:bg-gray-700 text-gray-900 dark:text-white"
             >
               <option value="">Select a category</option>
-              {categories.map((c) => (
-                <option key={c} value={c}>
-                  {c}
-                </option>
+              {categories.map(category => (
+                <option key={category} value={category}>{category}</option>
               ))}
             </select>
           </div>
 
           <div>
-            <label className="block text-sm font-medium text-gray-700 dark:text-gray-300 mb-2">
-              Date
-            </label>
+            <label className="block text-sm font-medium text-gray-700 dark:text-gray-300 mb-2">Date</label>
             <input
               type="date"
               name="date"
@@ -342,11 +271,15 @@ const ExpenseForm: React.FC<{
           </div>
 
           <div>
-            <label className="block text-sm font-medium text-gray-700 dark:text-gray-300 mb-2">
-              Receipt (Optional)
-            </label>
+            <label className="block text-sm font-medium text-gray-700 dark:text-gray-300 mb-2">Receipt (Optional)</label>
             <div className="border-2 border-dashed border-gray-300 dark:border-gray-600 rounded-xl p-6 text-center">
-              <input id="receipt-upload" type="file" accept="image/*" onChange={handleReceiptUpload} className="hidden" />
+              <input
+                type="file"
+                accept="image/*"
+                onChange={handleReceiptUpload}
+                className="hidden"
+                id="receipt-upload"
+              />
               <label htmlFor="receipt-upload" className="cursor-pointer">
                 {formData.receipt ? (
                   <div className="text-green-600 dark:text-green-400">
@@ -373,9 +306,9 @@ const ExpenseForm: React.FC<{
           </button>
           <button
             onClick={handleSave}
-            className="flex-1 bg-blue-600 text-white px-6 py-3 rounded-xl hover:bg-blue-700 transition-colors"
+            className="flex-1 bg-blue-600 text-white px-6 py-3 rounded-xl hover:bg-blue-700 transition-colors flex items-center justify-center space-x-2"
           >
-            Save Expense
+            <span>Save Expense</span>
           </button>
         </div>
       </div>
@@ -383,55 +316,63 @@ const ExpenseForm: React.FC<{
   );
 };
 
-/* =========================
-   BUDGET FORM (MODAL) — FIXED
-   ========================= */
-const BudgetForm: React.FC<{
-  onClose: () => void;
-  onSave: () => void;
-  budgets: any[];
-  setBudgets: React.Dispatch<React.SetStateAction<any[]>>;
-}> = ({ onClose, onSave, budgets, setBudgets }) => {
-  const [formData, setFormData] = useState({ category: "", budget: "", period: "Monthly" });
+// Budget Form Component
+const BudgetForm = ({ onClose, onSave, budgets, setBudgets }) => {
+  const { isDarkMode } = useTheme();
+  const [formData, setFormData] = useState({
+    category: '',
+    budget: '',
+    period: 'Monthly'
+  });
 
   const categories = [
-    "Food & Dining",
-    "Transportation",
-    "Shopping",
-    "Entertainment",
-    "Bills & Utilities",
-    "Healthcare",
-    "Travel",
-    "Education",
-    "Business",
-    "Other",
+    'Food & Dining',
+    'Transportation',
+    'Shopping',
+    'Entertainment',
+    'Bills & Utilities',
+    'Healthcare',
+    'Travel',
+    'Education',
+    'Business',
+    'Other'
   ];
 
-  const handleInputChange = (e: React.ChangeEvent<HTMLInputElement | HTMLSelectElement>) => {
-    const { name, value } = e.target as any;
-    setFormData((p) => ({ ...p, [name]: value }));
+  const handleInputChange = (e) => {
+    const { name, value } = e.target;
+    setFormData(prev => ({
+      ...prev,
+      [name]: value
+    }));
   };
 
   const handleSave = () => {
     if (!formData.category || !formData.budget || parseFloat(formData.budget) <= 0) {
-      alert("Please select a category and enter a valid budget amount");
+      alert('Please select a category and enter a valid budget amount');
       return;
     }
-    const idx = budgets.findIndex((b) => b.category === formData.category);
-    if (idx >= 0) {
-      const updated = [...budgets];
-      updated[idx] = { ...updated[idx], budget: parseFloat(formData.budget), period: formData.period };
-      setBudgets(updated);
+
+    const existingBudgetIndex = budgets.findIndex(b => b.category === formData.category);
+    
+    if (existingBudgetIndex >= 0) {
+      const updatedBudgets = [...budgets];
+      updatedBudgets[existingBudgetIndex] = {
+        ...updatedBudgets[existingBudgetIndex],
+        budget: parseFloat(formData.budget),
+        period: formData.period
+      };
+      setBudgets(updatedBudgets);
     } else {
       const newBudget = {
         id: Date.now(),
         category: formData.category,
         budget: parseFloat(formData.budget),
         spent: 0,
-        period: formData.period,
+        period: formData.period
       };
       setBudgets([...budgets, newBudget]);
     }
+
     onSave();
     onClose();
   };
@@ -456,10 +397,8 @@ const BudgetForm: React.FC<{
               className="w-full px-4 py-3 border border-gray-300 dark:border-gray-600 rounded-xl focus:ring-2 focus:ring-purple-500 focus:border-transparent bg-white dark:bg-gray-700 text-gray-900 dark:text-white"
             >
               <option value="">Select category</option>
-              {categories.map((c) => (
-                <option key={c} value={c}>
-                  {c}
-                </option>
+              {categories.map(category => (
+                <option key={category} value={category}>{category}</option>
               ))}
             </select>
           </div>
@@ -501,7 +440,10 @@ const BudgetForm: React.FC<{
           >
             Cancel
           </button>
-          <button onClick={handleSave} className="flex-1 bg-blue-600 text-white px-6 py-3 rounded-xl hover:bg-blue-700 transition-colors">
+          <button
+            onClick={handleSave}
+            className="flex-1 bg-blue-600 text-white px-6 py-3 rounded-xl hover:bg-blue-700 transition-colors"
+          >
             Add Budget
           </button>
         </div>
@@ -510,44 +452,26 @@ const BudgetForm: React.FC<{
   );
 };
 
-// Add this component after BudgetForm component:
-
+// Analytics Dashboard Component
 const AnalyticsDashboard = ({ onClose, expenses, budgets }) => {
   const { isDarkMode } = useTheme();
-  const [viewMode, setViewMode] = useState('monthly'); // 'weekly' or 'monthly'
+  const [viewMode, setViewMode] = useState('monthly');
 
-  // Generate sample data for charts
   const generateChartData = () => {
     if (viewMode === 'monthly') {
       return {
         labels: ['Jan', 'Feb', 'Mar', 'Apr', 'May', 'Jun'],
         datasets: [
-          {
-            label: 'Expenses',
-            data: [1200, 1900, 800, 1500, 2000, 1800],
-            color: '#ef4444'
-          },
-          {
-            label: 'Budget',
-            data: [2000, 2000, 2000, 2000, 2000, 2000],
-            color: '#10b981'
-          }
+          { label: 'Expenses', data: [1200, 1900, 800, 1500, 2000, 1800], color: '#ef4444' },
+          { label: 'Budget', data: [2000, 2000, 2000, 2000, 2000, 2000], color: '#10b981' }
         ]
       };
     } else {
       return {
         labels: ['Week 1', 'Week 2', 'Week 3', 'Week 4'],
         datasets: [
-          {
-            label: 'Expenses',
-            data: [450, 380, 520, 440],
-            color: '#ef4444'
-          },
-          {
-            label: 'Budget',
-            data: [500, 500, 500, 500],
-            color: '#10b981'
-          }
+          { label: 'Expenses', data: [450, 380, 520, 440], color: '#ef4444' },
+          { label: 'Budget', data: [500, 500, 500, 500], color: '#10b981' }
         ]
       };
     }
@@ -556,7 +480,6 @@ const AnalyticsDashboard = ({ onClose, expenses, budgets }) => {
   const chartData = generateChartData();
   const maxValue = Math.max(...chartData.datasets.flatMap(d => d.data));
 
-  // Calculate category breakdown
   const categoryData = [
     { name: 'Food & Dining', amount: 450, color: 'bg-orange-500', percentage: 35 },
     { name: 'Transportation', amount: 200, color: 'bg-blue-500', percentage: 20 },
@@ -568,7 +491,6 @@ const AnalyticsDashboard = ({ onClose, expenses, budgets }) => {
   return (
     <div className="fixed inset-0 bg-black/50 flex items-center justify-center z-50 p-4">
       <div className="bg-white dark:bg-gray-800 rounded-2xl p-6 w-full max-w-4xl max-h-[90vh] overflow-y-auto">
-        {/* Header */}
         <div className="flex items-center justify-between mb-6">
           <h2 className="text-2xl font-semibold text-gray-900 dark:text-white">Analytics Dashboard</h2>
           <button onClick={onClose} className="text-gray-600 dark:text-gray-400 hover:text-gray-800 dark:hover:text-gray-200">
@@ -576,16 +498,13 @@ const AnalyticsDashboard = ({ onClose, expenses, budgets }) => {
           </button>
         </div>
 
-        {/* Time Period Toggle */}
         <div className="flex items-center space-x-4 mb-8">
           <span className="text-sm font-medium text-gray-700 dark:text-gray-300">View:</span>
           <div className="flex bg-gray-100 dark:bg-gray-700 rounded-lg p-1">
             <button
               onClick={() => setViewMode('weekly')}
               className={`px-4 py-2 rounded-md text-sm font-medium transition-colors ${
-                viewMode === 'weekly' 
-                  ? 'bg-purple-600 text-white' 
-                  : 'text-gray-600 dark:text-gray-300 hover:text-gray-800 dark:hover:text-gray-100'
+                viewMode === 'weekly' ? 'bg-purple-600 text-white' : 'text-gray-600 dark:text-gray-300'
               }`}
             >
               Weekly
@@ -593,9 +512,7 @@ const AnalyticsDashboard = ({ onClose, expenses, budgets }) => {
             <button
               onClick={() => setViewMode('monthly')}
               className={`px-4 py-2 rounded-md text-sm font-medium transition-colors ${
-                viewMode === 'monthly' 
-                  ? 'bg-purple-600 text-white' 
-                  : 'text-gray-600 dark:text-gray-300 hover:text-gray-800 dark:hover:text-gray-100'
+                viewMode === 'monthly' ? 'bg-purple-600 text-white' : 'text-gray-600 dark:text-gray-300'
               }`}
             >
               Monthly
@@ -603,9 +520,7 @@ const AnalyticsDashboard = ({ onClose, expenses, budgets }) => {
           </div>
         </div>
 
-        {/* Charts Section */}
         <div className="grid grid-cols-1 lg:grid-cols-2 gap-8 mb-8">
-          {/* Bar Chart */}
           <div className="bg-gray-50 dark:bg-gray-700 rounded-xl p-6">
             <h3 className="text-lg font-semibold text-gray-900 dark:text-white mb-4">
               {viewMode === 'monthly' ? 'Monthly' : 'Weekly'} Comparison
@@ -620,51 +535,32 @@ const AnalyticsDashboard = ({ onClose, expenses, budgets }) => {
                     </span>
                   </div>
                   <div className="flex space-x-2">
-                    {/* Expenses Bar */}
                     <div className="flex-1">
                       <div className="w-full bg-gray-200 dark:bg-gray-600 rounded-full h-3">
                         <div 
                           className="bg-red-500 h-3 rounded-full transition-all duration-300"
-                          style={{ 
-                            width: `${(chartData.datasets[0].data[index] / maxValue) * 100}%` 
-                          }}
+                          style={{ width: `${(chartData.datasets[0].data[index] / maxValue) * 100}%` }}
                         ></div>
                       </div>
                     </div>
-                    {/* Budget Bar */}
                     <div className="flex-1">
                       <div className="w-full bg-gray-200 dark:bg-gray-600 rounded-full h-3">
                         <div 
                           className="bg-green-500 h-3 rounded-full transition-all duration-300"
-                          style={{ 
-                            width: `${(chartData.datasets[1].data[index] / maxValue) * 100}%` 
-                          }}
+                          style={{ width: `${(chartData.datasets[1].data[index] / maxValue) * 100}%` }}
                         ></div>
                       </div>
                     </div>
                   </div>
                 </div>
               ))}
-              <div className="flex justify-center space-x-6 mt-4">
-                <div className="flex items-center space-x-2">
-                  <div className="w-3 h-3 bg-red-500 rounded-full"></div>
-                  <span className="text-sm text-gray-600 dark:text-gray-300">Expenses</span>
-                </div>
-                <div className="flex items-center space-x-2">
-                  <div className="w-3 h-3 bg-green-500 rounded-full"></div>
-                  <span className="text-sm text-gray-600 dark:text-gray-300">Budget</span>
-                </div>
-              </div>
             </div>
           </div>
 
-          {/* Pie Chart (Category Breakdown) */}
           <div className="bg-gray-50 dark:bg-gray-700 rounded-xl p-6">
-            <h3 className="text-lg font-semibold text-gray-900 dark:text-white mb-4">
-              Spending by Category
-            </h3>
+            <h3 className="text-lg font-semibold text-gray-900 dark:text-white mb-4">Spending by Category</h3>
             <div className="space-y-4">
-              {categoryData.map((category, index) => (
+              {categoryData.map((category) => (
                 <div key={category.name} className="flex items-center justify-between">
                   <div className="flex items-center space-x-3">
                     <div className={`w-4 h-4 ${category.color} rounded-full`}></div>
@@ -684,7 +580,6 @@ const AnalyticsDashboard = ({ onClose, expenses, budgets }) => {
           </div>
         </div>
 
-        {/* Summary Stats */}
         <div className="grid grid-cols-1 md:grid-cols-4 gap-6">
           <div className="bg-gradient-to-r from-green-500 to-green-600 text-white p-4 rounded-xl">
             <div className="text-sm opacity-90">Total Saved</div>
@@ -704,7 +599,6 @@ const AnalyticsDashboard = ({ onClose, expenses, budgets }) => {
           </div>
         </div>
 
-        {/* Close Button */}
         <div className="flex justify-end mt-8">
           <button
             onClick={onClose}
@@ -718,9 +612,7 @@ const AnalyticsDashboard = ({ onClose, expenses, budgets }) => {
   );
 };
 
-/* =========================
-   DASHBOARD SCREEN (renamed to avoid collisions)
-   ========================= */
+// Dashboard Component
 const Dashboard = ({ user, onSignOut }) => {
   const { isDarkMode, toggleTheme } = useTheme();
   const [expenses, setExpenses] = useState([
@@ -934,11 +826,6 @@ const Dashboard = ({ user, onSignOut }) => {
   );
 };
 
-  const totalSpent = expenses.reduce((sum, e) => sum + e.amount, 0);
-  const totalBudget = budgets.reduce((sum, b) => sum + b.budget, 0);
-  return (
-    <div className="min-h-screen bg-gradient-to-br from-gray-50 to-gray-100 dark:from-gray-900 dark:to-gray-800">
-      {/* Header */}
       <header className="bg-white dark:bg-gray-800 shadow-sm border-b dark:border-gray-700">
         <div className="max-w-7xl mx-auto px-4 py-4 flex items-center justify-between">
           <BudgetTalkLogo />
