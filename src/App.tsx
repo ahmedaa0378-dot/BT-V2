@@ -721,3 +721,102 @@ const ExpenseForm = ({ onClose, onSave, expenses, setExpenses }) => {
 };
 
 export default Dashboard;
+const LoginPage = ({ onLogin, onBack }) => {
+  return (
+    <div className="min-h-screen bg-gradient-to-br from-purple-900 via-blue-900 to-indigo-900 flex items-center justify-center">
+      <div className="bg-white/10 backdrop-blur-md rounded-2xl p-8 w-full max-w-md">
+        <div className="text-center mb-8">
+          <BudgetTalkLogo size="large" className="justify-center mb-4" />
+          <h2 className="text-2xl font-bold text-white">Welcome to BudgetTalk</h2>
+          <p className="text-purple-100 mt-2">Choose your account type to get started</p>
+        </div>
+        
+        <div className="space-y-4">
+          <button
+            onClick={() => onLogin({ name: 'Personal User', type: 'personal' })}
+            className="w-full bg-gradient-to-r from-purple-600 to-blue-600 text-white py-4 rounded-xl font-semibold hover:from-purple-700 hover:to-blue-700 transition-all duration-300 shadow-lg hover:shadow-xl transform hover:-translate-y-0.5"
+          >
+            <div className="text-left px-4">
+              <div className="font-bold">Personal Account</div>
+              <div className="text-sm opacity-90">Track your personal expenses and budgets</div>
+            </div>
+          </button>
+          
+          <button
+            onClick={() => onLogin({ name: 'Business User', type: 'business' })}
+            className="w-full bg-gradient-to-r from-green-600 to-teal-600 text-white py-4 rounded-xl font-semibold hover:from-green-700 hover:to-teal-700 transition-all duration-300 shadow-lg hover:shadow-xl transform hover:-translate-y-0.5"
+          >
+            <div className="text-left px-4">
+              <div className="font-bold">Business Account</div>
+              <div className="text-sm opacity-90">Manage business expenses and team budgets</div>
+            </div>
+          </button>
+        </div>
+        
+        <button
+          onClick={onBack}
+          className="w-full mt-6 text-gray-300 hover:text-white transition-colors py-2"
+        >
+          ← Back to Home
+        </button>
+      </div>
+    </div>
+  );
+};
+
+const LandingPage = ({ onGetStarted }) => {
+  return (
+    <div className="min-h-screen bg-white dark:bg-gray-900 flex items-center justify-center">
+      <div className="text-center">
+        <BudgetTalkLogo size="large" className="justify-center mb-8" />
+        <h1 className="text-4xl font-bold text-gray-900 dark:text-white mb-4">
+          Talk to your <span className="text-purple-600">budget</span>
+        </h1>
+        <p className="text-xl text-gray-600 dark:text-gray-300 mb-8">
+          Voice-powered expense tracking made simple
+        </p>
+        <button 
+          onClick={onGetStarted}
+          className="bg-gradient-to-r from-purple-600 to-blue-600 text-white px-8 py-3 rounded-full font-semibold hover:from-purple-700 hover:to-blue-700 transition-all"
+        >
+          Get Started
+        </button>
+      </div>
+    </div>
+  );
+};
+
+// Main App Component
+function App() {
+  const [currentView, setCurrentView] = useState('landing');
+  const [user, setUser] = useState(null);
+
+  const handleGetStarted = () => {
+    setCurrentView('login');
+  };
+
+  const handleLogin = (userData) => {
+    setUser(userData);
+    setCurrentView('dashboard');
+  };
+
+  const handleSignOut = () => {
+    setUser(null);
+    setCurrentView('landing');
+  };
+
+  return (
+    <ThemeProvider>
+      {currentView === 'landing' && <LandingPage onGetStarted={handleGetStarted} />}
+      {currentView === 'login' && (
+        <LoginPage 
+          onLogin={handleLogin} 
+          onBack={() => setCurrentView('landing')} 
+        />
+      )}
+      {currentView === 'dashboard' && <Dashboard user={user} onSignOut={handleSignOut} />}
+    </ThemeProvider>
+  );
+}
+
+export default App;
