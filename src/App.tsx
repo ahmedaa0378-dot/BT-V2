@@ -97,25 +97,82 @@ const BudgetTalkLogo: React.FC<{ size?: "small" | "default" | "large"; className
 /* =========================
    MOCK SUPABASE (DEMO ONLY)
    ========================= */
-const supabase = {
-  auth: {
-    signInWithOAuth: async (options: any) => {
-      console.log("Google OAuth would be triggered here with:", options);
-      return {
-        data: {
-          user: {
-            id: "mock-user-id",
-            email: "user@example.com",
-            user_metadata: { full_name: "Demo User", avatar_url: "" },
+// Replace the existing supabase configuration with this:
+
+// For now, let's simulate real Google auth
+const simulateGoogleAuth = () => {
+  return new Promise((resolve) => {
+    // Simulate the Google OAuth popup
+    const confirmed = confirm(
+      "🔐 Google Authentication\n\n" +
+      "This would normally open Google's login popup.\n" +
+      "For demo purposes, click 'OK' to simulate successful login,\n" +
+      "or 'Cancel' to simulate login failure."
+    );
+    
+    setTimeout(() => {
+      if (confirmed) {
+        resolve({
+          data: {
+            user: {
+              id: 'demo-user-' + Date.now(),
+              email: 'demo@example.com',
+              user_metadata: {
+                full_name: 'Demo User',
+                avatar_url: 'https://via.placeholder.com/40'
+              }
+            }
           },
-        },
-        error: null,
-      };
-    },
-    signOut: async () => ({ error: null }),
-    getSession: async () => ({ data: { session: null }, error: null }),
-    onAuthStateChange: (cb: any) => ({ data: { subscription: { unsubscribe: () => {} } } }),
-  },
+          error: null
+        });
+      } else {
+        resolve({
+          data: { user: null },
+          error: { message: 'Login cancelled by user' }
+        });
+      }
+    }, 1000); // Simulate network delay
+  });
+};
+
+// Replace the existing useAuth hook with this:
+const useAuth = () => {
+  const [user, setUser] = useState(null);
+  const [loading, setLoading] = useState(false);
+
+  const signInWithGoogle = async () => {
+    setLoading(true);
+    
+    try {
+      const result = await simulateGoogleAuth();
+      
+      if (result.error) {
+        console.error('Authentication error:', result.error.message);
+        return { error: result.error };
+      }
+      
+      setUser(result.data.user);
+      return { error: null, user: result.data.user };
+      
+    } catch (error) {
+      console.error('Authentication failed:', error);
+      return { error: { message: 'Authentication failed' } };
+    } finally {
+      setLoading(false);
+    }
+  };
+
+  const signOut = async () => {
+    setUser(null);
+    return { error: null };
+  };
+
+  return {
+    user,
+    loading,
+    signInWithGoogle,
+    signOut
+  };
 };
 
 const useAuth = () => {
@@ -363,6 +420,213 @@ const BudgetForm: React.FC<{
   onSave: () => void;
   budgets: any[];
   setBudgets: React.Dispatch<React.SetStateAction<any[]>>;
+// Add this component after BudgetForm component:
+
+const AnalyticsDashboard = ({ onClose, expenses, budgets }) => {
+  const { isDarkMode } = useTheme();
+  const [viewMode, setViewMode] = useState('monthly'); // 'weekly' or 'monthly'
+
+  // Generate sample data for charts
+  const generateChartData = () => {
+    if (viewMode === 'monthly') {
+      return {
+        labels: ['Jan', 'Feb', 'Mar', 'Apr', 'May', 'Jun'],
+        datasets: [
+          {
+            label: 'Expenses',
+            data: [1200, 1900, 800, 1500, 2000, 1800],
+            color: '#ef4444'
+          },
+          {
+            label: 'Budget',
+            data: [2000, 2000, 2000, 2000, 2000, 2000],
+            color: '#10b981'
+          }
+        ]
+      };
+    } else {
+      return {
+        labels: ['Week 1', 'Week 2', 'Week 3', 'Week 4'],
+        datasets: [
+          {
+            label: 'Expenses',
+            data: [450, 380, 520, 440],
+            color: '#ef4444'
+          },
+          {
+            label: 'Budget',
+            data: [500, 500, 500, 500],
+            color: '#10b981'
+          }
+        ]
+      };
+    }
+  };
+
+  const chartData = generateChartData();
+  const maxValue = Math.max(...chartData.datasets.flatMap(d => d.data));
+
+  // Calculate category breakdown
+  const categoryData = [
+    { name: 'Food & Dining', amount: 450, color: 'bg-orange-500', percentage: 35 },
+    { name: 'Transportation', amount: 200, color: 'bg-blue-500', percentage: 20 },
+    { name: 'Shopping', amount: 300, color: 'bg-purple-500', percentage: 25 },
+    { name: 'Entertainment', amount: 150, color: 'bg-pink-500', percentage: 15 },
+    { name: 'Other', amount: 100, color: 'bg-gray-500', percentage: 5 }
+  ];
+
+  return (
+    <div className="fixed inset-0 bg-black/50 flex items-center justify-center z-50 p-4">
+      <div className="bg-white dark:bg-gray-800 rounded-2xl p-6 w-full max-w-4xl max-h-[90vh] overflow-y-auto">
+        {/* Header */}
+        <div className="flex items-center justify-between mb-6">
+          <h2 className="text-2xl font-semibold text-gray-900 dark:text-white">Analytics Dashboard</h2>
+          <button onClick={onClose} className="text-gray-600 dark:text-gray-400 hover:text-gray-800 dark:hover:text-gray-200">
+            <X className="w-6 h-6" />
+          </button>
+        </div>
+
+        {/* Time Period Toggle */}
+        <div className="flex items-center space-x-4 mb-8">
+          <span className="text-sm font-medium text-gray-700 dark:text-gray-300">View:</span>
+          <div className="flex bg-gray-100 dark:bg-gray-700 rounded-lg p-1">
+            <button
+              onClick={() => setViewMode('weekly')}
+              className={`px-4 py-2 rounded-md text-sm font-medium transition-colors ${
+                viewMode === 'weekly' 
+                  ? 'bg-purple-600 text-white' 
+                  : 'text-gray-600 dark:text-gray-300 hover:text-gray-800 dark:hover:text-gray-100'
+              }`}
+            >
+              Weekly
+            </button>
+            <button
+              onClick={() => setViewMode('monthly')}
+              className={`px-4 py-2 rounded-md text-sm font-medium transition-colors ${
+                viewMode === 'monthly' 
+                  ? 'bg-purple-600 text-white' 
+                  : 'text-gray-600 dark:text-gray-300 hover:text-gray-800 dark:hover:text-gray-100'
+              }`}
+            >
+              Monthly
+            </button>
+          </div>
+        </div>
+
+        {/* Charts Section */}
+        <div className="grid grid-cols-1 lg:grid-cols-2 gap-8 mb-8">
+          {/* Bar Chart */}
+          <div className="bg-gray-50 dark:bg-gray-700 rounded-xl p-6">
+            <h3 className="text-lg font-semibold text-gray-900 dark:text-white mb-4">
+              {viewMode === 'monthly' ? 'Monthly' : 'Weekly'} Comparison
+            </h3>
+            <div className="space-y-4">
+              {chartData.labels.map((label, index) => (
+                <div key={label} className="space-y-2">
+                  <div className="flex justify-between text-sm">
+                    <span className="text-gray-600 dark:text-gray-300">{label}</span>
+                    <span className="text-gray-900 dark:text-white">
+                      ${chartData.datasets[0].data[index]}
+                    </span>
+                  </div>
+                  <div className="flex space-x-2">
+                    {/* Expenses Bar */}
+                    <div className="flex-1">
+                      <div className="w-full bg-gray-200 dark:bg-gray-600 rounded-full h-3">
+                        <div 
+                          className="bg-red-500 h-3 rounded-full transition-all duration-300"
+                          style={{ 
+                            width: `${(chartData.datasets[0].data[index] / maxValue) * 100}%` 
+                          }}
+                        ></div>
+                      </div>
+                    </div>
+                    {/* Budget Bar */}
+                    <div className="flex-1">
+                      <div className="w-full bg-gray-200 dark:bg-gray-600 rounded-full h-3">
+                        <div 
+                          className="bg-green-500 h-3 rounded-full transition-all duration-300"
+                          style={{ 
+                            width: `${(chartData.datasets[1].data[index] / maxValue) * 100}%` 
+                          }}
+                        ></div>
+                      </div>
+                    </div>
+                  </div>
+                </div>
+              ))}
+              <div className="flex justify-center space-x-6 mt-4">
+                <div className="flex items-center space-x-2">
+                  <div className="w-3 h-3 bg-red-500 rounded-full"></div>
+                  <span className="text-sm text-gray-600 dark:text-gray-300">Expenses</span>
+                </div>
+                <div className="flex items-center space-x-2">
+                  <div className="w-3 h-3 bg-green-500 rounded-full"></div>
+                  <span className="text-sm text-gray-600 dark:text-gray-300">Budget</span>
+                </div>
+              </div>
+            </div>
+          </div>
+
+          {/* Pie Chart (Category Breakdown) */}
+          <div className="bg-gray-50 dark:bg-gray-700 rounded-xl p-6">
+            <h3 className="text-lg font-semibold text-gray-900 dark:text-white mb-4">
+              Spending by Category
+            </h3>
+            <div className="space-y-4">
+              {categoryData.map((category, index) => (
+                <div key={category.name} className="flex items-center justify-between">
+                  <div className="flex items-center space-x-3">
+                    <div className={`w-4 h-4 ${category.color} rounded-full`}></div>
+                    <span className="text-sm text-gray-700 dark:text-gray-300">{category.name}</span>
+                  </div>
+                  <div className="text-right">
+                    <div className="text-sm font-semibold text-gray-900 dark:text-white">
+                      ${category.amount}
+                    </div>
+                    <div className="text-xs text-gray-500 dark:text-gray-400">
+                      {category.percentage}%
+                    </div>
+                  </div>
+                </div>
+              ))}
+            </div>
+          </div>
+        </div>
+
+        {/* Summary Stats */}
+        <div className="grid grid-cols-1 md:grid-cols-4 gap-6">
+          <div className="bg-gradient-to-r from-green-500 to-green-600 text-white p-4 rounded-xl">
+            <div className="text-sm opacity-90">Total Saved</div>
+            <div className="text-2xl font-bold">$340</div>
+          </div>
+          <div className="bg-gradient-to-r from-blue-500 to-blue-600 text-white p-4 rounded-xl">
+            <div className="text-sm opacity-90">Avg Daily</div>
+            <div className="text-2xl font-bold">$45</div>
+          </div>
+          <div className="bg-gradient-to-r from-purple-500 to-purple-600 text-white p-4 rounded-xl">
+            <div className="text-sm opacity-90">Top Category</div>
+            <div className="text-lg font-bold">Food</div>
+          </div>
+          <div className="bg-gradient-to-r from-orange-500 to-orange-600 text-white p-4 rounded-xl">
+            <div className="text-sm opacity-90">Budget Left</div>
+            <div className="text-2xl font-bold">$1.2k</div>
+          </div>
+        </div>
+
+        {/* Close Button */}
+        <div className="flex justify-end mt-8">
+          <button
+            onClick={onClose}
+            className="bg-gray-600 hover:bg-gray-700 text-white px-6 py-2 rounded-xl transition-colors"
+          >
+            Close
+          </button>
+        </div>
+      </div>
+    </div>
+  );
+};
 }> = ({ onClose, onSave, budgets, setBudgets }) => {
   const [formData, setFormData] = useState({ category: "", budget: "", period: "Monthly" });
 
@@ -485,9 +749,41 @@ const BudgetForm: React.FC<{
 /* =========================
    DASHBOARD SCREEN (renamed to avoid collisions)
    ========================= */
-const DashboardScreen: React.FC<{
-  user: { name: string; type: string } | null;
-  onSignOut: () => void;
+// Find the Dashboard component header section and replace with:
+<header className="bg-white dark:bg-gray-800 shadow-sm border-b dark:border-gray-700">
+  <div className="max-w-7xl mx-auto px-4 py-4 flex items-center justify-between">
+    <BudgetTalkLogo />
+    
+    <div className="flex items-center space-x-4">
+      {/* Theme Toggle Button */}
+      <button
+        onClick={toggleTheme}
+        className="p-2 text-gray-600 dark:text-gray-400 hover:text-purple-600 dark:hover:text-purple-400 transition-colors rounded-lg hover:bg-gray-100 dark:hover:bg-gray-700"
+        title={isDarkMode ? 'Switch to Light Mode' : 'Switch to Dark Mode'}
+      >
+        {isDarkMode ? (
+          <Sun className="w-5 h-5" />
+        ) : (
+          <Moon className="w-5 h-5" />
+        )}
+      </button>
+      
+      <div className="text-right">
+        <div className="text-sm text-gray-600 dark:text-gray-400">Welcome back</div>
+        <div className="font-semibold text-gray-900 dark:text-white">{user.name}</div>
+        <div className="text-xs text-purple-600 dark:text-purple-400 capitalize">{user.type} Account</div>
+      </div>
+      
+      <button
+        onClick={onSignOut}
+        className="text-gray-600 dark:text-gray-400 hover:text-red-600 dark:hover:text-red-400 transition-colors p-2 rounded-lg hover:bg-gray-100 dark:hover:bg-gray-700"
+        title="Sign Out"
+      >
+        <LogOut className="w-5 h-5" />
+      </button>
+    </div>
+  </div>
+</header>
 }> = ({ user, onSignOut }) => {
   const { isDarkMode, toggleTheme } = useTheme();
 
@@ -503,20 +799,45 @@ const DashboardScreen: React.FC<{
   const [showExpenseForm, setShowExpenseForm] = useState(false);
   const [showBudgetForm, setShowBudgetForm] = useState(false);
 
-  const handleVoiceExpense = () => {
-    setIsRecording(true);
-    setTimeout(() => {
-      setIsRecording(false);
-      const newExpense = {
-        id: Date.now(),
-        category: "Food & Dining",
-        amount: Math.floor(Math.random() * 50) + 10,
-        description: "Voice recorded expense",
-        date: new Date().toISOString().split("T")[0],
-      };
-      setExpenses((prev) => [newExpense, ...prev]);
-    }, 3000);
-  };
+  // Find this function in Dashboard component and replace it:
+const handleVoiceExpense = () => {
+  setIsRecording(true);
+  
+  // Simulate voice recognition
+  setTimeout(() => {
+    const voiceExpenses = [
+      { description: 'Coffee at Starbucks', amount: 8, category: 'Food & Dining' },
+      { description: 'Uber ride to office', amount: 15, category: 'Transportation' },
+      { description: 'Lunch with client', amount: 35, category: 'Food & Dining' },
+      { description: 'Office supplies', amount: 22, category: 'Business' },
+      { description: 'Grocery shopping', amount: 67, category: 'Shopping' }
+    ];
+    
+    const randomExpense = voiceExpenses[Math.floor(Math.random() * voiceExpenses.length)];
+    
+    const newExpense = {
+      id: Date.now(),
+      category: randomExpense.category,
+      amount: randomExpense.amount,
+      description: `Voice: ${randomExpense.description}`,
+      date: new Date().toISOString().split('T')[0]
+    };
+    
+    setExpenses(prev => [newExpense, ...prev]);
+    
+    // Update budget spent amounts
+    setBudgets(prev => prev.map(budget => 
+      budget.category === newExpense.category 
+        ? { ...budget, spent: budget.spent + newExpense.amount }
+        : budget
+    ));
+    
+    setIsRecording(false);
+    
+    // Show success message
+    alert(`Added: $${newExpense.amount} for ${newExpense.description}`);
+  }, 3000);
+};
 
   const totalSpent = expenses.reduce((sum, e) => sum + e.amount, 0);
   const totalBudget = budgets.reduce((sum, b) => sum + b.budget, 0);
@@ -665,50 +986,58 @@ const DashboardScreen: React.FC<{
             </button>
           </div>
 
-          {budgets.length === 0 ? (
-            <div className="text-center py-12">
-              <BarChart3 className="w-16 h-16 text-gray-400 mx-auto mb-4" />
-            </div>
-          ) : (
-            <div className="grid grid-cols-1 md:grid-cols-2 gap-6">
-              {budgets.map((budget) => {
-                const percentage = (budget.spent / budget.budget) * 100;
-                const isOver = percentage > 100;
-                return (
-                  <div key={budget.id} className="p-4 border border-gray-200 dark:border-gray-700 rounded-xl">
-                    <div className="flex justify-between items-center mb-3">
-                      <h4 className="font-medium text-gray-900 dark:text-white">{budget.category}</h4>
-                      <span className="text-sm text-gray-500 dark:text-gray-400">{budget.period}</span>
-                    </div>
-                    <div className="mb-3">
-                      <div className="flex justify-between text-sm mb-1">
-                        <span className="text-gray-600 dark:text-gray-400">
-                          ${budget.spent} of ${budget.budget}
-                        </span>
-                        <span className={`font-medium ${isOver ? "text-red-600" : "text-gray-900 dark:text-white"}`}>
-                          {percentage.toFixed(0)}%
-                        </span>
-                      </div>
-                      <div className="w-full bg-gray-200 dark:bg-gray-700 rounded-full h-2">
-                        <div
-                          className={`h-2 rounded-full transition-all duration-300 ${
-                            isOver ? "bg-red-500" : percentage > 80 ? "bg-yellow-500" : "bg-green-500"
-                          }`}
-                          style={{ width: `${Math.min(percentage, 100)}%` }}
-                        />
-                      </div>
-                    </div>
-                    {isOver && (
-                      <div className="text-xs text-red-600 dark:text-red-400 font-medium">
-                        Over budget by ${(budget.spent - budget.budget).toFixed(2)}
-                      </div>
-                    )}
-                  </div>
-                );
-              })}
-            </div>
-          )}
+          // Find this section in the Dashboard component and replace it:
+{budgets.length === 0 ? (
+  <div className="text-center py-12">
+    <BarChart3 className="w-16 h-16 text-gray-400 mx-auto mb-4" />
+    <p className="text-gray-600 dark:text-gray-400 mb-4">No budgets set</p>
+    <button 
+      onClick={() => setShowBudgetForm(true)}
+      className="bg-blue-600 text-white px-6 py-3 rounded-full hover:bg-blue-700 transition-colors"
+    >
+      Create Your First Budget
+    </button>
+  </div>
+) : (
+  <div className="grid grid-cols-1 md:grid-cols-2 gap-6">
+    {budgets.map((budget, index) => {
+      // Calculate actual spent amount from expenses
+      const actualSpent = expenses
+        .filter(expense => expense.category === budget.category)
+        .reduce((sum, expense) => sum + expense.amount, 0);
+      
+      const percentage = (actualSpent / budget.budget) * 100;
+      const isOverBudget = percentage > 100;
+      
+      return (
+        <div key={index} className="space-y-3">
+          <div className="flex justify-between items-center">
+            <span className="font-medium text-gray-700 dark:text-gray-300">{budget.category}</span>
+            <span className={`text-sm ${isOverBudget ? 'text-red-600' : 'text-gray-600 dark:text-gray-400'}`}>
+              ${actualSpent.toFixed(2)} / ${budget.budget}
+            </span>
+          </div>
+          <div className="w-full bg-gray-200 dark:bg-gray-700 rounded-full h-3">
+            <div 
+              className={`h-3 rounded-full transition-all duration-300 ${
+                isOverBudget 
+                  ? 'bg-gradient-to-r from-red-500 to-red-600' 
+                  : percentage > 80 
+                    ? 'bg-gradient-to-r from-yellow-500 to-orange-500'
+                    : 'bg-gradient-to-r from-green-500 to-green-600'
+              }`}
+              style={{ width: `${Math.min(percentage, 100)}%` }}
+            ></div>
+          </div>
+          <div className="text-xs text-gray-500 dark:text-gray-400">
+            {percentage.toFixed(1)}% used
+            {isOverBudget && <span className="text-red-600 ml-2">Over budget!</span>}
+          </div>
         </div>
+      );
+    })}
+  </div>
+)}
 
         {/* Recent Expenses */}
         <div className="bg-white dark:bg-gray-800 rounded-2xl p-6 shadow-sm">
