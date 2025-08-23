@@ -668,163 +668,162 @@ const Dashboard = ({ user, onSignOut }) => {
   const totalBudget = budgets.reduce((sum, budget) => sum + budget.budget, 0);
 
   return (
-    <div className="min-h-screen bg-gradient-to-br from-gray-50 to-gray-100 dark:from-gray-900 dark:to-gray-800">
-      <header className="bg-white dark:bg-gray-800 shadow-sm border-b dark:border-gray-700">
-        <div className="max-w-7xl mx-auto px-4 py-4 flex items-center justify-between">
-          <BudgetTalkLogo />
-          <div className="flex items-center space-x-4">
-            <button onClick={toggleTheme} className="p-2 text-gray-600 dark:text-gray-400 hover:text-purple-600">
-              {isDarkMode ? <Sun className="w-5 h-5" /> : <Moon className="w-5 h-5" />}
-            </button>
-            <div className="text-right">
-              <div className="text-sm text-gray-600 dark:text-gray-400">Welcome back</div>
-              <div className="font-semibold text-gray-900 dark:text-white">{user.name}</div>
-            </div>
-            <button onClick={onSignOut} className="text-gray-600 dark:text-gray-400 hover:text-red-600 p-2">
-              <LogOut className="w-5 h-5" />
-            </button>
-          </div>
-        </div>
-      </header>
-
-      <div className="max-w-7xl mx-auto p-6">
-        <div className="grid grid-cols-1 md:grid-cols-4 gap-6 mb-8">
-          <div className="bg-gradient-to-br from-purple-500 to-purple-600 text-white p-6 rounded-2xl">
-            <div className="text-sm opacity-90">Total Budget</div>
-            <div className="text-3xl font-bold">${totalBudget}</div>
-          </div>
-          <div className="bg-gradient-to-br from-blue-500 to-blue-600 text-white p-6 rounded-2xl">
-            <div className="text-sm opacity-90">Total Spent</div>
-            <div className="text-3xl font-bold">${totalSpent}</div>
-          </div>
-          <div className="bg-gradient-to-br from-green-500 to-green-600 text-white p-6 rounded-2xl">
-            <div className="text-sm opacity-90">Remaining</div>
-            <div className="text-3xl font-bold">${totalBudget - totalSpent}</div>
-          </div>
-          <div className="bg-gradient-to-br from-orange-500 to-orange-600 text-white p-6 rounded-2xl">
-            <div className="text-sm opacity-90">Expenses</div>
-            <div className="text-3xl font-bold">{expenses.length}</div>
-          </div>
-        </div>
-
-        <div className="grid grid-cols-1 md:grid-cols-4 gap-6 mb-8">
-          <button 
-            onClick={handleVoiceExpense}
-            disabled={isRecording}
-            className="bg-gradient-to-r from-purple-600 to-blue-600 text-white p-6 rounded-2xl shadow-lg hover:shadow-xl transition-all duration-300 transform hover:-translate-y-1 disabled:opacity-50"
-          >
+    <>
+      <div className="min-h-screen bg-gradient-to-br from-gray-50 to-gray-100 dark:from-gray-900 dark:to-gray-800">
+        <header className="bg-white dark:bg-gray-800 shadow-sm border-b dark:border-gray-700">
+          <div className="max-w-7xl mx-auto px-4 py-4 flex items-center justify-between">
+            <BudgetTalkLogo />
             <div className="flex items-center space-x-4">
-              <div className="relative">
-                <Mic className="w-8 h-8" />
-                {isRecording && <div className="absolute -inset-2 bg-white rounded-full animate-ping opacity-30"></div>}
+              <button onClick={toggleTheme} className="p-2 text-gray-600 dark:text-gray-400 hover:text-purple-600">
+                {isDarkMode ? <Sun className="w-5 h-5" /> : <Moon className="w-5 h-5" />}
+              </button>
+              <div className="text-right">
+                <div className="text-sm text-gray-600 dark:text-gray-400">Welcome back</div>
+                <div className="font-semibold text-gray-900 dark:text-white">{user.name}</div>
               </div>
-              <div className="text-left">
-                <div className="font-semibold text-lg">{isRecording ? 'Recording...' : 'Add by Voice'}</div>
-                <div className="text-sm opacity-90">{isRecording ? 'Listening...' : 'Voice entry'}</div>
-              </div>
+              <button onClick={onSignOut} className="text-gray-600 dark:text-gray-400 hover:text-red-600 p-2">
+                <LogOut className="w-5 h-5" />
+              </button>
             </div>
-          </button>
-          
-          <button 
-            onClick={() => setShowExpenseForm(true)}
-            className="bg-gradient-to-r from-green-600 to-teal-600 text-white p-6 rounded-2xl shadow-lg hover:shadow-xl transition-all duration-300 transform hover:-translate-y-1"
-          >
-            <div className="flex items-center space-x-4">
-              <Plus className="w-8 h-8" />
-              <div className="text-left">
-                <div className="font-semibold text-lg">Manual Entry</div>
-                <div className="text-sm opacity-90">Add expense</div>
-              </div>
-            </div>
-          </button>
-          
-          <button 
-            onClick={() => setShowBudgetForm(true)}
-            className="bg-gradient-to-r from-indigo-600 to-purple-600 text-white p-6 rounded-2xl shadow-lg hover:shadow-xl transition-all duration-300 transform hover:-translate-y-1"
-          >
-            <div className="flex items-center space-x-4">
-              <BarChart3 className="w-8 h-8" />
-              <div className="text-left">
-                <div className="font-semibold text-lg">Add Budget</div>
-                <div className="text-sm opacity-90">Set limits</div>
-              </div>
-            </div>
-          </button>
-
-          <button 
-            onClick={() => setShowAnalytics(true)}
-            className="bg-gradient-to-r from-orange-600 to-red-600 text-white p-6 rounded-2xl shadow-lg hover:shadow-xl transition-all duration-300 transform hover:-translate-y-1"
-          >
-            <div className="flex items-center space-x-4">
-              <TrendingUp className="w-8 h-8" />
-              <div className="text-left">
-                <div className="font-semibold text-lg">View Analytics</div>
-                <div className="text-sm opacity-90">Detailed insights</div>
-              </div>
-            </div>
-          </button>
-        </div>
-
-        <div className="bg-white dark:bg-gray-800 rounded-2xl p-6 shadow-sm mb-8">
-          <div className="flex justify-between items-center mb-6">
-            <h3 className="text-xl font-semibold text-gray-900 dark:text-white">Recent Expenses</h3>
           </div>
-          
-          <div className="space-y-4">
-            {expenses.map((expense) => (
-              <div key={expense.id} className="flex items-center justify-between p-4 bg-gray-50 dark:bg-gray-700 rounded-xl">
-                <div className="flex items-center space-x-4">
-                  <div className={`w-12 h-12 rounded-xl flex items-center justify-center text-white ${
-                    expense.category === 'Food & Dining' ? 'bg-orange-500' :
-                    expense.category === 'Transportation' ? 'bg-blue-500' :
-                    expense.category === 'Shopping' ? 'bg-purple-500' : 'bg-gray-500'
-                  }`}>
-                    {expense.category === 'Food & Dining' ? '🍽️' :
-                     expense.category === 'Transportation' ? '🚗' :
-                     expense.category === 'Shopping' ? '🛒' : '💼'}
-                  </div>
-                  <div>
-                    <div className="font-semibold text-gray-900 dark:text-white">{expense.description}</div>
-                    <div className="text-sm text-gray-600 dark:text-gray-400">{expense.category}</div>
-                  </div>
+        </header>
+
+        <div className="max-w-7xl mx-auto p-6">
+          <div className="grid grid-cols-1 md:grid-cols-4 gap-6 mb-8">
+            <div className="bg-gradient-to-br from-purple-500 to-purple-600 text-white p-6 rounded-2xl">
+              <div className="text-sm opacity-90">Total Budget</div>
+              <div className="text-3xl font-bold">${totalBudget}</div>
+            </div>
+            <div className="bg-gradient-to-br from-blue-500 to-blue-600 text-white p-6 rounded-2xl">
+              <div className="text-sm opacity-90">Total Spent</div>
+              <div className="text-3xl font-bold">${totalSpent}</div>
+            </div>
+            <div className="bg-gradient-to-br from-green-500 to-green-600 text-white p-6 rounded-2xl">
+              <div className="text-sm opacity-90">Remaining</div>
+              <div className="text-3xl font-bold">${totalBudget - totalSpent}</div>
+            </div>
+            <div className="bg-gradient-to-br from-orange-500 to-orange-600 text-white p-6 rounded-2xl">
+              <div className="text-sm opacity-90">Expenses</div>
+              <div className="text-3xl font-bold">{expenses.length}</div>
+            </div>
+          </div>
+
+          <div className="grid grid-cols-1 md:grid-cols-4 gap-6 mb-8">
+            <button 
+              onClick={handleVoiceExpense}
+              disabled={isRecording}
+              className="bg-gradient-to-r from-purple-600 to-blue-600 text-white p-6 rounded-2xl shadow-lg hover:shadow-xl transition-all duration-300 transform hover:-translate-y-1 disabled:opacity-50"
+            >
+              <div className="flex items-center space-x-4">
+                <div className="relative">
+                  <Mic className="w-8 h-8" />
+                  {isRecording && <div className="absolute -inset-2 bg-white rounded-full animate-ping opacity-30"></div>}
                 </div>
-                <div className="text-xl font-bold text-gray-900 dark:text-white">
-                  ${expense.amount}
+                <div className="text-left">
+                  <div className="font-semibold text-lg">{isRecording ? 'Recording...' : 'Add by Voice'}</div>
+                  <div className="text-sm opacity-90">{isRecording ? 'Listening...' : 'Voice entry'}</div>
                 </div>
               </div>
-            ))}
+            </button>
+            
+            <button 
+              onClick={() => setShowExpenseForm(true)}
+              className="bg-gradient-to-r from-green-600 to-teal-600 text-white p-6 rounded-2xl shadow-lg hover:shadow-xl transition-all duration-300 transform hover:-translate-y-1"
+            >
+              <div className="flex items-center space-x-4">
+                <Plus className="w-8 h-8" />
+                <div className="text-left">
+                  <div className="font-semibold text-lg">Manual Entry</div>
+                  <div className="text-sm opacity-90">Add expense</div>
+                </div>
+              </div>
+            </button>
+            
+            <button 
+              onClick={() => setShowBudgetForm(true)}
+              className="bg-gradient-to-r from-indigo-600 to-purple-600 text-white p-6 rounded-2xl shadow-lg hover:shadow-xl transition-all duration-300 transform hover:-translate-y-1"
+            >
+              <div className="flex items-center space-x-4">
+                <BarChart3 className="w-8 h-8" />
+                <div className="text-left">
+                  <div className="font-semibold text-lg">Add Budget</div>
+                  <div className="text-sm opacity-90">Set limits</div>
+                </div>
+              </div>
+            </button>
+
+            <button 
+              onClick={() => setShowAnalytics(true)}
+              className="bg-gradient-to-r from-orange-600 to-red-600 text-white p-6 rounded-2xl shadow-lg hover:shadow-xl transition-all duration-300 transform hover:-translate-y-1"
+            >
+              <div className="flex items-center space-x-4">
+                <TrendingUp className="w-8 h-8" />
+                <div className="text-left">
+                  <div className="font-semibold text-lg">View Analytics</div>
+                  <div className="text-sm opacity-90">Detailed insights</div>
+                </div>
+              </div>
+            </button>
+          </div>
+
+          <div className="bg-white dark:bg-gray-800 rounded-2xl p-6 shadow-sm mb-8">
+            <div className="flex justify-between items-center mb-6">
+              <h3 className="text-xl font-semibold text-gray-900 dark:text-white">Recent Expenses</h3>
+            </div>
+            
+            <div className="space-y-4">
+              {expenses.map((expense) => (
+                <div key={expense.id} className="flex items-center justify-between p-4 bg-gray-50 dark:bg-gray-700 rounded-xl">
+                  <div className="flex items-center space-x-4">
+                    <div className={`w-12 h-12 rounded-xl flex items-center justify-center text-white ${
+                      expense.category === 'Food & Dining' ? 'bg-orange-500' :
+                      expense.category === 'Transportation' ? 'bg-blue-500' :
+                      expense.category === 'Shopping' ? 'bg-purple-500' : 'bg-gray-500'
+                    }`}>
+                      {expense.category === 'Food & Dining' ? '🍽️' :
+                       expense.category === 'Transportation' ? '🚗' :
+                       expense.category === 'Shopping' ? '🛒' : '💼'}
+                    </div>
+                    <div>
+                      <div className="font-semibold text-gray-900 dark:text-white">{expense.description}</div>
+                      <div className="text-sm text-gray-600 dark:text-gray-400">{expense.category}</div>
+                    </div>
+                  </div>
+                  <div className="text-xl font-bold text-gray-900 dark:text-white">
+                    ${expense.amount}
+                  </div>
+                </div>
+              ))}
+            </div>
           </div>
         </div>
+
+        {showExpenseForm && (
+          <ExpenseForm 
+            onClose={() => setShowExpenseForm(false)}
+            onSave={() => {}}
+            expenses={expenses}
+            setExpenses={setExpenses}
+          />
+        )}
+
+        {showBudgetForm && (
+          <BudgetForm 
+            onClose={() => setShowBudgetForm(false)}
+            onSave={() => {}}
+            budgets={budgets}
+            setBudgets={setBudgets}
+          />
+        )}
+
+        {showAnalytics && (
+          <AnalyticsDashboard 
+            onClose={() => setShowAnalytics(false)}
+            expenses={expenses}
+            budgets={budgets}
+          />
+        )}
       </div>
-
-      {showExpenseForm && (
-        <ExpenseForm 
-          onClose={() => setShowExpenseForm(false)}
-          onSave={() => {}}
-          expenses={expenses}
-          setExpenses={setExpenses}
-        />
-      )}
-
-      {showBudgetForm && (
-        <BudgetForm 
-          onClose={() => setShowBudgetForm(false)}
-          onSave={() => {}}
-          budgets={budgets}
-          setBudgets={setBudgets}
-        />
-      )}
-
-      {showAnalytics && (
-        <AnalyticsDashboard 
-          onClose={() => setShowAnalytics(false)}
-          expenses={expenses}
-          budgets={budgets}
-        />
-      )}
-    </div>
-  );
-};
 
       <header className="bg-white dark:bg-gray-800 shadow-sm border-b dark:border-gray-700">
         <div className="max-w-7xl mx-auto px-4 py-4 flex items-center justify-between">
@@ -1096,7 +1095,7 @@ const Dashboard = ({ user, onSignOut }) => {
       {showBudgetForm && (
         <BudgetForm onClose={() => setShowBudgetForm(false)} onSave={() => {}} budgets={budgets} setBudgets={setBudgets} />
       )}
-    </div>
+    </>
   );
 };
 
