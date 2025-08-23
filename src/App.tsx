@@ -806,6 +806,8 @@ const ExpenseForm = ({ onClose, onSave, expenses, setExpenses }) => {
 
 import { Routes, Route, Navigate } from "react-router-dom";
 
+import BudgetForm from "./components/BudgetForm";
+
 // Pages
 
 // Your existing components/hooks
