@@ -811,7 +811,6 @@ const ExpenseForm = ({ onClose, onSave, expenses, setExpenses }) => {
   );
 };
 
-import { useState } from "react";
 import { Routes, Route, Navigate } from "react-router-dom";
 
 // Pages
