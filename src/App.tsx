@@ -487,13 +487,6 @@ const ExpenseForm = ({ onClose, onSave, expenses, setExpenses }) => {
       </div>
     </div>
   );
-};const Dashboard = ({ user, onSignOut }) => {
-  const { isDarkMode, toggleTheme } = useTheme();
-  const [expenses, setExpenses] = useState([
-    { id: 1, category: 'Food & Dining', amount: 25, description: 'Lunch at cafe', date: '2024-01-15' },
-    { id: 2, category: 'Transportation', amount: 15, description: 'Uber ride', date: '2024-01-15' },
-    { id: 3, category: 'Shopping', amount: 89, description: 'Groceries', date: '2024-01-14' }
-  ]);
   
   const [budgets, setBudgets] = useState([
     { id: 1, category: 'Food & Dining', budget: 500, spent: 325, period: 'Monthly' },
