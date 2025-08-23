@@ -1055,10 +1055,8 @@ const Dashboard = ({ user, onSignOut }) => {
     </div>
   );
 };
-
   const totalSpent = expenses.reduce((sum, e) => sum + e.amount, 0);
   const totalBudget = budgets.reduce((sum, b) => sum + b.budget, 0);
-
   return (
     <div className="min-h-screen bg-gradient-to-br from-gray-50 to-gray-100 dark:from-gray-900 dark:to-gray-800">
       {/* Header */}
