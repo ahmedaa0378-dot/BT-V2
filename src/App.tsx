@@ -1383,7 +1383,6 @@ const LandingPage: React.FC<{ onGetStarted: () => void }> = ({ onGetStarted }) =
               { name: "Mike Chen", role: "Freelancer", content: "Finally, expense tracking that doesn't feel like a chore. Just talk and it's done!", avatar: "MC", rating: 5 },
               { name: "Lisa Rodriguez", role: "Marketing Director", content: "The analytics are incredible. I can see exactly where our team's budget is going.", avatar: "LR", rating: 5 },
 
-    }
   ];
 
   return (
