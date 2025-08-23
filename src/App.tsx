@@ -737,17 +737,24 @@ const DashboardScreen: React.FC<{ user: any; onSignOut: () => void }> = ({ user,
   const [showBudgetForm, setShowBudgetForm] = useState(false);
 
   // Find this function in Dashboard component and replace it:
+// Replace the handleVoiceExpense function in Dashboard component:
 const handleVoiceExpense = () => {
-  setIsRecording(true);
+  if (isRecording) return; // Prevent multiple clicks
   
-  // Simulate voice recognition
+  setIsRecording(true);
+  console.log('Voice recording started...');
+  
+  // Simulate voice recognition with realistic expenses
   setTimeout(() => {
     const voiceExpenses = [
       { description: 'Coffee at Starbucks', amount: 8, category: 'Food & Dining' },
       { description: 'Uber ride to office', amount: 15, category: 'Transportation' },
       { description: 'Lunch with client', amount: 35, category: 'Food & Dining' },
-      { description: 'Office supplies', amount: 22, category: 'Business' },
-      { description: 'Grocery shopping', amount: 67, category: 'Shopping' }
+      { description: 'Office supplies from Amazon', amount: 22, category: 'Shopping' },
+      { description: 'Grocery shopping at Walmart', amount: 67, category: 'Shopping' },
+      { description: 'Gas station fill-up', amount: 45, category: 'Transportation' },
+      { description: 'Movie tickets', amount: 28, category: 'Entertainment' },
+      { description: 'Pharmacy prescription', amount: 12, category: 'Healthcare' }
     ];
     
     const randomExpense = voiceExpenses[Math.floor(Math.random() * voiceExpenses.length)];
@@ -756,18 +763,28 @@ const handleVoiceExpense = () => {
       id: Date.now(),
       category: randomExpense.category,
       amount: randomExpense.amount,
-      description: `Voice: ${randomExpense.description}`,
+      description: `🎤 ${randomExpense.description}`,
       date: new Date().toISOString().split('T')[0]
     };
     
-    setExpenses(prev => [newExpense, ...prev]);
+    console.log('Adding voice expense:', newExpense);
     
-    // Update budget spent amounts
-    setBudgets(prev => prev.map(budget => 
-      budget.category === newExpense.category 
-        ? { ...budget, spent: budget.spent + newExpense.amount }
-        : budget
-    ));
+    // Add to expenses list
+    setExpenses(prevExpenses => {
+      const updatedExpenses = [newExpense, ...prevExpenses];
+      console.log('Updated expenses:', updatedExpenses);
+      return updatedExpenses;
+    });
+    
+    setIsRecording(false);
+    
+    // Show success message
+    setTimeout(() => {
+      alert(`✅ Voice Entry Added!\n\n${newExpense.description}\nAmount: $${newExpense.amount}\nCategory: ${newExpense.category}`);
+    }, 500);
+    
+  }, 3000); // 3 second simulation
+};
     
     setIsRecording(false);
     
@@ -1077,17 +1094,49 @@ const LoginPage: React.FC<{ onLogin?: (info: any) => void; onBack?: () => void }
     setFormData((p) => ({ ...p, [name]: value }));
   };
 
-  const handleGoogleAuth = async () => {
-    setLoading(true);
-    const { error } = await signInWithGoogle();
-    if (error) {
-      alert("Authentication failed. Please try again.");
-      setLoading(false);
+// Replace the handleGoogleAuth function in LoginPage component:
+const handleGoogleAuth = async (accountType) => {
+  setLoading(true);
+  
+  try {
+    // Show the Google auth simulation dialog
+    const userConfirmed = confirm(
+      "🔐 Google Authentication\n\n" +
+      "This would normally open Google's secure login popup.\n\n" +
+      "For demo purposes:\n" +
+      "• Click 'OK' to simulate successful Google login\n" +
+      "• Click 'Cancel' to simulate login failure\n\n" +
+      `Account Type: ${accountType === 'personal' ? 'Personal' : 'Business'}`
+    );
+    
+    if (userConfirmed) {
+      // Simulate successful authentication
+      const mockUserData = {
+        name: accountType === 'personal' ? 'John Doe (Personal)' : 'Acme Corp (Business)',
+        type: accountType,
+        email: accountType === 'personal' ? 'john.doe@gmail.com' : 'admin@acmecorp.com',
+        avatar: 'https://via.placeholder.com/40',
+        fullName: accountType === 'personal' ? 'John Doe' : 'John Smith'
+      };
+      
+      // Small delay to simulate network request
+      setTimeout(() => {
+        alert(`✅ Google Authentication Successful!\n\nWelcome, ${mockUserData.name}!`);
+        onLogin(mockUserData);
+      }, 1000);
+      
     } else {
-      // In a real app, /auth/callback would handle routing. For this demo, simulate success:
-      onLogin?.({ name: "Personal User", type: "personal", email: "user@example.com" });
+      // User cancelled
+      setLoading(false);
+      alert('❌ Authentication cancelled by user.');
     }
-  };
+    
+  } catch (error) {
+    setLoading(false);
+    alert('❌ Authentication failed. Please try again.');
+    console.error('Auth error:', error);
+  }
+};
 
   const handlePersonalLogin = async () => {
     if (!formData.email) return alert("Please enter your email");
