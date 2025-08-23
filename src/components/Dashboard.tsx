@@ -1,233 +1,288 @@
-import React from 'react';
-import { TrendingUp, TrendingDown, DollarSign, PieChart, Plus, List, Settings, AlertCircle } from 'lucide-react';
-import { Expense, Budget } from '../types';
-import { formatCurrency } from '../utils/formatters';
-import { getBudgetProgress, getCategorySpending } from '../utils/budgetUtils';
+const Dashboard = ({ user, onSignOut }) => {
+  const { isDarkMode, toggleTheme } = useTheme();
+  const [expenses, setExpenses] = useState([
+    { id: 1, category: 'Food & Dining', amount: 25, description: 'Lunch at cafe', date: '2024-01-15' },
+    { id: 2, category: 'Transportation', amount: 15, description: 'Uber ride', date: '2024-01-15' },
+    { id: 3, category: 'Shopping', amount: 89, description: 'Groceries', date: '2024-01-14' }
+  ]);
+  
+  const [budgets, setBudgets] = useState([
+    { id: 1, category: 'Food & Dining', budget: 500, spent: 325, period: 'Monthly' },
+    { id: 2, category: 'Transportation', budget: 200, spent: 145, period: 'Monthly' },
+    { id: 3, category: 'Shopping', budget: 300, spent: 289, period: 'Monthly' },
+    { id: 4, category: 'Entertainment', budget: 150, spent: 67, period: 'Monthly' }
+  ]);
 
-interface DashboardProps {
-  expenses: Expense[];
-  budgets: Budget[];
-  onAddExpense: () => void;
-  onViewExpenses: () => void;
-  onManageBudgets: () => void;
-}
+  const [isRecording, setIsRecording] = useState(false);
+  const [showExpenseForm, setShowExpenseForm] = useState(false);
+  const [showBudgetForm, setShowBudgetForm] = useState(false);
 
-export const Dashboard: React.FC<DashboardProps> = ({
-  expenses,
-  budgets,
-  onAddExpense,
-  onViewExpenses,
-  onManageBudgets,
-}) => {
-  const currentMonth = new Date().toISOString().slice(0, 7);
-  const monthlyExpenses = expenses.filter(expense => 
-    expense.date.startsWith(currentMonth)
-  );
+  const handleVoiceExpense = () => {
+    setIsRecording(true);
+    setTimeout(() => {
+      setIsRecording(false);
+      const newExpense = {
+        id: Date.now(),
+        category: 'Food & Dining',
+        amount: Math.floor(Math.random() * 50) + 10,
+        description: 'Voice recorded expense',
+        date: new Date().toISOString().split('T')[0]
+      };
+      setExpenses([newExpense, ...expenses]);
+    }, 3000);
+  };
 
-  const totalSpent = monthlyExpenses.reduce((sum, expense) => sum + expense.amount, 0);
-  const totalBudget = budgets.reduce((sum, budget) => sum + budget.limit, 0);
-  const remainingBudget = totalBudget - totalSpent;
-
-  const budgetProgress = budgets.map(budget => {
-    const spent = getCategorySpending(monthlyExpenses, budget.category);
-    const progress = getBudgetProgress(spent, budget.limit);
-    return {
-      ...budget,
-      spent,
-      progress,
-      remaining: budget.limit - spent,
-    };
-  });
-
-  const overBudgetCategories = budgetProgress.filter(bp => bp.progress > 100);
-
-  const recentExpenses = expenses
-    .sort((a, b) => new Date(b.createdAt).getTime() - new Date(a.createdAt).getTime())
-    .slice(0, 5);
+  const totalSpent = expenses.reduce((sum, expense) => sum + expense.amount, 0);
+  const totalBudget = budgets.reduce((sum, budget) => sum + budget.budget, 0);
 
   return (
-    <div className="space-y-6">
-      {/* Quick Actions */}
-      <div className="grid grid-cols-1 md:grid-cols-3 gap-4">
-        <button
-          onClick={onAddExpense}
-          className="bg-blue-600 hover:bg-blue-700 text-white p-6 rounded-xl transition-all duration-200 transform hover:scale-105 hover:shadow-lg"
-        >
-          <div className="flex items-center space-x-3">
-            <Plus className="h-6 w-6" />
-            <div className="text-left">
-              <div className="font-semibold">Add Expense</div>
-              <div className="text-sm opacity-90">Voice or manual entry</div>
-            </div>
-          </div>
-        </button>
-
-        <button
-          onClick={onViewExpenses}
-          className="bg-emerald-600 hover:bg-emerald-700 text-white p-6 rounded-xl transition-all duration-200 transform hover:scale-105 hover:shadow-lg"
-        >
-          <div className="flex items-center space-x-3">
-            <List className="h-6 w-6" />
-            <div className="text-left">
-              <div className="font-semibold">View Expenses</div>
-              <div className="text-sm opacity-90">{expenses.length} total expenses</div>
-            </div>
-          </div>
-        </button>
-
-        <button
-          onClick={onManageBudgets}
-          className="bg-orange-600 hover:bg-orange-700 text-white p-6 rounded-xl transition-all duration-200 transform hover:scale-105 hover:shadow-lg"
-        >
-          <div className="flex items-center space-x-3">
-            <Settings className="h-6 w-6" />
-            <div className="text-left">
-              <div className="font-semibold">Manage Budgets</div>
-              <div className="text-sm opacity-90">{budgets.length} active budgets</div>
-            </div>
-          </div>
-        </button>
-      </div>
-
-      {/* Budget Alerts */}
-      {overBudgetCategories.length > 0 && (
-        <div className="bg-red-50 border border-red-200 rounded-xl p-4">
-          <div className="flex items-center space-x-2 text-red-700 mb-3">
-            <AlertCircle className="h-5 w-5" />
-            <h3 className="font-semibold">Budget Alerts</h3>
-          </div>
-          <div className="space-y-2">
-            {overBudgetCategories.map(budget => (
-              <div key={budget.id} className="text-sm text-red-600">
-                <span className="font-medium">{budget.category}</span> is over budget by{' '}
-                <span className="font-semibold">{formatCurrency(budget.spent - budget.limit)}</span>
-              </div>
-            ))}
-          </div>
-        </div>
-      )}
-
-      {/* Overview Cards */}
-      <div className="grid grid-cols-1 md:grid-cols-3 gap-6">
-        <div className="bg-white rounded-xl p-6 shadow-sm border border-gray-100">
-          <div className="flex items-center justify-between">
-            <div>
-              <p className="text-gray-600 text-sm font-medium">Total Spent This Month</p>
-              <p className="text-2xl font-bold text-gray-900 mt-1">{formatCurrency(totalSpent)}</p>
-            </div>
-            <div className="bg-red-100 p-3 rounded-lg">
-              <TrendingDown className="h-6 w-6 text-red-600" />
-            </div>
-          </div>
-        </div>
-
-        <div className="bg-white rounded-xl p-6 shadow-sm border border-gray-100">
-          <div className="flex items-center justify-between">
-            <div>
-              <p className="text-gray-600 text-sm font-medium">Remaining Budget</p>
-              <p className={`text-2xl font-bold mt-1 ${remainingBudget >= 0 ? 'text-green-600' : 'text-red-600'}`}>
-                {formatCurrency(Math.abs(remainingBudget))}
-              </p>
-            </div>
-            <div className={`p-3 rounded-lg ${remainingBudget >= 0 ? 'bg-green-100' : 'bg-red-100'}`}>
-              {remainingBudget >= 0 ? (
-                <DollarSign className="h-6 w-6 text-green-600" />
-              ) : (
-                <AlertCircle className="h-6 w-6 text-red-600" />
-              )}
-            </div>
-          </div>
-        </div>
-
-        <div className="bg-white rounded-xl p-6 shadow-sm border border-gray-100">
-          <div className="flex items-center justify-between">
-            <div>
-              <p className="text-gray-600 text-sm font-medium">Total Budget</p>
-              <p className="text-2xl font-bold text-gray-900 mt-1">{formatCurrency(totalBudget)}</p>
-            </div>
-            <div className="bg-blue-100 p-3 rounded-lg">
-              <TrendingUp className="h-6 w-6 text-blue-600" />
-            </div>
-          </div>
-        </div>
-      </div>
-
-      {/* Budget Progress */}
-      {budgetProgress.length > 0 && (
-        <div className="bg-white rounded-xl p-6 shadow-sm border border-gray-100">
-          <h3 className="text-lg font-semibold text-gray-900 mb-4 flex items-center space-x-2">
-            <PieChart className="h-5 w-5" />
-            <span>Budget Progress</span>
-          </h3>
-          <div className="space-y-4">
-            {budgetProgress.map(budget => (
-              <div key={budget.id} className="space-y-2">
-                <div className="flex justify-between items-center">
-                  <span className="font-medium text-gray-700">{budget.category}</span>
-                  <span className="text-sm text-gray-600">
-                    {formatCurrency(budget.spent)} / {formatCurrency(budget.limit)}
-                  </span>
-                </div>
-                <div className="w-full bg-gray-200 rounded-full h-2">
-                  <div
-                    className={`h-2 rounded-full transition-all duration-300 ${
-                      budget.progress > 100 
-                        ? 'bg-red-500' 
-                        : budget.progress > 80 
-                        ? 'bg-yellow-500' 
-                        : 'bg-green-500'
-                    }`}
-                    style={{ width: `${Math.min(budget.progress, 100)}%` }}
-                  />
-                </div>
-                <div className="flex justify-between text-xs text-gray-500">
-                  <span>{budget.progress.toFixed(1)}% used</span>
-                  <span>{formatCurrency(budget.remaining)} remaining</span>
-                </div>
-              </div>
-            ))}
-          </div>
-        </div>
-      )}
-
-      {/* Recent Expenses */}
-      {recentExpenses.length > 0 && (
-        <div className="bg-white rounded-xl p-6 shadow-sm border border-gray-100">
-          <div className="flex justify-between items-center mb-4">
-            <h3 className="text-lg font-semibold text-gray-900">Recent Expenses</h3>
+    <div className="min-h-screen bg-gradient-to-br from-gray-50 to-gray-100 dark:from-gray-900 dark:to-gray-800">
+      {/* Header */}
+      <header className="bg-white dark:bg-gray-800 shadow-sm border-b dark:border-gray-700">
+        <div className="max-w-7xl mx-auto px-4 py-4 flex items-center justify-between">
+          <BudgetTalkLogo />
+          
+          <div className="flex items-center space-x-4">
             <button
-              onClick={onViewExpenses}
-              className="text-blue-600 hover:text-blue-700 text-sm font-medium"
+              onClick={toggleTheme}
+              className="p-2 text-gray-600 dark:text-gray-400 hover:text-purple-600 dark:hover:text-purple-400 transition-colors"
             >
-              View All
+              {isDarkMode ? <Sun className="w-5 h-5" /> : <Moon className="w-5 h-5" />}
+            </button>
+            
+            <div className="text-right">
+              <div className="text-sm text-gray-600 dark:text-gray-400">Welcome back</div>
+              <div className="font-semibold text-gray-900 dark:text-white">{user.name}</div>
+              <div className="text-xs text-purple-600 dark:text-purple-400 capitalize">{user.type} Account</div>
+            </div>
+            
+            <button
+              onClick={onSignOut}
+              className="text-gray-600 dark:text-gray-400 hover:text-red-600 dark:hover:text-red-400 transition-colors p-2"
+            >
+              <LogOut className="w-5 h-5" />
             </button>
           </div>
-          <div className="space-y-3">
-            {recentExpenses.map(expense => (
-              <div key={expense.id} className="flex justify-between items-center py-2">
-                <div>
-                  <p className="font-medium text-gray-900">{expense.description}</p>
-                  <p className="text-sm text-gray-500">{expense.category} • {new Date(expense.date).toLocaleDateString()}</p>
+        </div>
+      </header>
+
+      <div className="max-w-7xl mx-auto p-6">
+        {/* Stats Overview */}
+        <div className="grid grid-cols-1 md:grid-cols-4 gap-6 mb-8">
+          <div className="bg-gradient-to-br from-purple-500 to-purple-600 text-white p-6 rounded-2xl">
+            <div className="flex items-center justify-between">
+              <div>
+                <div className="text-sm opacity-90">Total Budget</div>
+                <div className="text-3xl font-bold">${totalBudget}</div>
+              </div>
+              <DollarSign className="w-8 h-8 opacity-80" />
+            </div>
+          </div>
+          
+          <div className="bg-gradient-to-br from-blue-500 to-blue-600 text-white p-6 rounded-2xl">
+            <div className="flex items-center justify-between">
+              <div>
+                <div className="text-sm opacity-90">Total Spent</div>
+                <div className="text-3xl font-bold">${totalSpent}</div>
+              </div>
+              <TrendingUp className="w-8 h-8 opacity-80" />
+            </div>
+          </div>
+          
+          <div className="bg-gradient-to-br from-green-500 to-green-600 text-white p-6 rounded-2xl">
+            <div className="flex items-center justify-between">
+              <div>
+                <div className="text-sm opacity-90">Remaining</div>
+                <div className="text-3xl font-bold">${totalBudget - totalSpent}</div>
+              </div>
+              <Check className="w-8 h-8 opacity-80" />
+            </div>
+          </div>
+          
+          <div className="bg-gradient-to-br from-orange-500 to-orange-600 text-white p-6 rounded-2xl">
+            <div className="flex items-center justify-between">
+              <div>
+                <div className="text-sm opacity-90">Expenses</div>
+                <div className="text-3xl font-bold">{expenses.length}</div>
+              </div>
+              <List className="w-8 h-8 opacity-80" />
+            </div>
+          </div>
+        </div>
+
+        {/* Action Buttons */}
+        <div className="grid grid-cols-1 md:grid-cols-4 gap-6 mb-8">
+          <button 
+            onClick={handleVoiceExpense}
+            disabled={isRecording}
+            className="bg-gradient-to-r from-purple-600 to-blue-600 text-white p-6 rounded-2xl shadow-lg hover:shadow-xl transition-all duration-300 transform hover:-translate-y-1 disabled:opacity-50 disabled:cursor-not-allowed"
+          >
+            <div className="flex items-center space-x-4">
+              <div className="relative">
+                <Mic className="w-8 h-8" />
+                {isRecording && <div className="absolute -inset-2 bg-white rounded-full animate-ping opacity-30"></div>}
+              </div>
+              <div className="text-left">
+                <div className="font-semibold text-lg">
+                  {isRecording ? 'Recording...' : 'Add by Voice'}
                 </div>
-                <p className="font-semibold text-gray-900">{formatCurrency(expense.amount)}</p>
+                <div className="text-sm opacity-90">
+                  {isRecording ? 'Listening...' : 'Voice entry'}
+                </div>
+              </div>
+            </div>
+          </button>
+          
+          <button 
+            onClick={() => setShowExpenseForm(true)}
+            className="bg-gradient-to-r from-green-600 to-teal-600 text-white p-6 rounded-2xl shadow-lg hover:shadow-xl transition-all duration-300 transform hover:-translate-y-1"
+          >
+            <div className="flex items-center space-x-4">
+              <Plus className="w-8 h-8" />
+              <div className="text-left">
+                <div className="font-semibold text-lg">Manual Entry</div>
+                <div className="text-sm opacity-90">Add expense</div>
+              </div>
+            </div>
+          </button>
+          
+          <button 
+            onClick={() => setShowBudgetForm(true)}
+            className="bg-gradient-to-r from-indigo-600 to-purple-600 text-white p-6 rounded-2xl shadow-lg hover:shadow-xl transition-all duration-300 transform hover:-translate-y-1"
+          >
+            <div className="flex items-center space-x-4">
+              <BarChart3 className="w-8 h-8" />
+              <div className="text-left">
+                <div className="font-semibold text-lg">Add Budget</div>
+                <div className="text-sm opacity-90">Set limits</div>
+              </div>
+            </div>
+          </button>
+
+          <button className="bg-gradient-to-r from-orange-600 to-red-600 text-white p-6 rounded-2xl shadow-lg hover:shadow-xl transition-all duration-300 transform hover:-translate-y-1">
+            <div className="flex items-center space-x-4">
+              <TrendingUp className="w-8 h-8" />
+              <div className="text-left">
+                <div className="font-semibold text-lg">Analytics</div>
+                <div className="text-sm opacity-90">View insights</div>
+              </div>
+            </div>
+          </button>
+        </div>
+
+        {/* Budget Progress */}
+        <div className="bg-white dark:bg-gray-800 rounded-2xl p-6 shadow-sm mb-8">
+          <div className="flex justify-between items-center mb-6">
+            <h3 className="text-xl font-semibold text-gray-900 dark:text-white">Budget Overview</h3>
+            <button 
+              onClick={() => setShowBudgetForm(true)}
+              className="bg-blue-600 text-white px-4 py-2 rounded-xl hover:bg-blue-700 transition-colors flex items-center space-x-2"
+            >
+              <Plus className="w-4 h-4" />
+              <span>Add Budget</span>
+            </button>
+          </div>
+
+          {budgets.length === 0 ? (
+            <div className="text-center py-12">
+              <BarChart3 className="w-16 h-16 text-gray-400 mx-auto mb-4" />
+              <p className="text-gray-600 dark:text-gray-400 mb-4">No budgets set</p>
+              <button 
+                onClick={() => setShowBudgetForm(true)}
+                className="bg-blue-600 text-white px-6 py-3 rounded-full hover:bg-blue-700 transition-colors"
+              >
+                Create Your First Budget
+              </button>
+            </div>
+          ) : (
+            <div className="grid grid-cols-1 md:grid-cols-2 gap-6">
+              {budgets.map((budget, index) => {
+                const percentage = (budget.spent / budget.budget) * 100;
+                const isOverBudget = percentage > 100;
+                
+                return (
+                  <div key={index} className="space-y-3">
+                    <div className="flex justify-between items-center">
+                      <span className="font-medium text-gray-700 dark:text-gray-300">{budget.category}</span>
+                      <span className={`text-sm ${isOverBudget ? 'text-red-600' : 'text-gray-600 dark:text-gray-400'}`}>
+                        ${budget.spent} / ${budget.budget}
+                      </span>
+                    </div>
+                    <div className="w-full bg-gray-200 dark:bg-gray-700 rounded-full h-3">
+                      <div 
+                        className={`h-3 rounded-full transition-all duration-300 ${
+                          isOverBudget 
+                            ? 'bg-gradient-to-r from-red-500 to-red-600' 
+                            : percentage > 80 
+                              ? 'bg-gradient-to-r from-yellow-500 to-orange-500'
+                              : 'bg-gradient-to-r from-green-500 to-green-600'
+                        }`}
+                        style={{ width: `${Math.min(percentage, 100)}%` }}
+                      ></div>
+                    </div>
+                    <div className="text-xs text-gray-500 dark:text-gray-400">
+                      {percentage.toFixed(1)}% used
+                      {isOverBudget && <span className="text-red-600 ml-2">Over budget!</span>}
+                    </div>
+                  </div>
+                );
+              })}
+            </div>
+          )}
+        </div>
+
+        {/* Recent Expenses */}
+        <div className="bg-white dark:bg-gray-800 rounded-2xl p-6 shadow-sm">
+          <div className="flex justify-between items-center mb-6">
+            <h3 className="text-xl font-semibold text-gray-900 dark:text-white">Recent Expenses</h3>
+            <button className="text-purple-600 dark:text-purple-400 hover:text-purple-700 dark:hover:text-purple-300 font-medium">View All</button>
+          </div>
+          
+          <div className="space-y-4">
+            {expenses.map((expense) => (
+              <div key={expense.id} className="flex items-center justify-between p-4 bg-gray-50 dark:bg-gray-700 rounded-xl hover:bg-gray-100 dark:hover:bg-gray-600 transition-colors">
+                <div className="flex items-center space-x-4">
+                  <div className={`w-12 h-12 rounded-xl flex items-center justify-center text-white ${
+                    expense.category === 'Food & Dining' ? 'bg-orange-500' :
+                    expense.category === 'Transportation' ? 'bg-blue-500' :
+                    expense.category === 'Shopping' ? 'bg-purple-500' :
+                    'bg-gray-500'
+                  }`}>
+                    {expense.category === 'Food & Dining' ? '🍽️' :
+                     expense.category === 'Transportation' ? '🚗' :
+                     expense.category === 'Shopping' ? '🛒' : '💼'}
+                  </div>
+                  <div>
+                    <div className="font-semibold text-gray-900 dark:text-white">{expense.description}</div>
+                    <div className="text-sm text-gray-600 dark:text-gray-400">{expense.category} • {expense.date}</div>
+                  </div>
+                </div>
+                <div className="text-xl font-bold text-gray-900 dark:text-white">
+                  ${expense.amount}
+                </div>
               </div>
             ))}
           </div>
         </div>
+      </div>
+
+      {/* Modals */}
+      {showExpenseForm && (
+        <ExpenseForm 
+          onClose={() => setShowExpenseForm(false)}
+          onSave={() => {}}
+          expenses={expenses}
+          setExpenses={setExpenses}
+        />
       )}
 
-      {expenses.length === 0 && (
-        <div className="bg-white rounded-xl p-12 text-center shadow-sm border border-gray-100">
-          <DollarSign className="h-12 w-12 text-gray-400 mx-auto mb-4" />
-          <h3 className="text-lg font-semibold text-gray-700 mb-2">No expenses yet</h3>
-          <p className="text-gray-500 mb-6">Start tracking your expenses to see insights and manage your budget.</p>
-          <button
-            onClick={onAddExpense}
-            className="bg-blue-600 hover:bg-blue-700 text-white px-6 py-3 rounded-lg font-medium transition-colors"
-          >
-            Add Your First Expense
-          </button>
-        </div>
+      {showBudgetForm && (
+        <BudgetForm 
+          onClose={() => setShowBudgetForm(false)}
+          onSave={() => {}}
+          budgets={budgets}
+          setBudgets={setBudgets}
+        />
       )}
     </div>
   );
