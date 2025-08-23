@@ -175,16 +175,6 @@ const useAuth = () => {
   };
 };
 
-      options: { redirectTo: window.location.origin },
-    });
-    if (error) return { error };
-    return { error: null };
-  };
-  const signOut = async () => supabase.auth.signOut();
-
-  return { user, loading, signInWithGoogle, signOut };
-};
-
 /* =========================
    EXPENSE FORM (MODAL)
    ========================= */
@@ -401,6 +391,125 @@ const BudgetForm: React.FC<{
   onSave: () => void;
   budgets: any[];
   setBudgets: React.Dispatch<React.SetStateAction<any[]>>;
+}> = ({ onClose, onSave, budgets, setBudgets }) => {
+  const [formData, setFormData] = useState({ category: "", budget: "", period: "Monthly" });
+
+  const categories = [
+    "Food & Dining",
+    "Transportation",
+    "Shopping",
+    "Entertainment",
+    "Bills & Utilities",
+    "Healthcare",
+    "Travel",
+    "Education",
+    "Business",
+    "Other",
+  ];
+
+  const handleInputChange = (e: React.ChangeEvent<HTMLInputElement | HTMLSelectElement>) => {
+    const { name, value } = e.target as any;
+    setFormData((p) => ({ ...p, [name]: value }));
+  };
+
+  const handleSave = () => {
+    if (!formData.category || !formData.budget || parseFloat(formData.budget) <= 0) {
+      alert("Please select a category and enter a valid budget amount");
+      return;
+    }
+    const idx = budgets.findIndex((b) => b.category === formData.category);
+    if (idx >= 0) {
+      const updated = [...budgets];
+      updated[idx] = { ...updated[idx], budget: parseFloat(formData.budget), period: formData.period };
+      setBudgets(updated);
+    } else {
+      const newBudget = {
+        id: Date.now(),
+        category: formData.category,
+        budget: parseFloat(formData.budget),
+        spent: 0,
+        period: formData.period,
+      };
+      setBudgets([...budgets, newBudget]);
+    }
+    onSave();
+    onClose();
+  };
+
+  return (
+    <div className="fixed inset-0 bg-black/50 flex items-center justify-center z-50 p-4">
+      <div className="bg-white dark:bg-gray-800 rounded-2xl p-6 w-full max-w-md">
+        <div className="flex items-center justify-between mb-6">
+          <h2 className="text-xl font-semibold text-gray-900 dark:text-white">Add Budget</h2>
+          <button onClick={onClose} className="text-gray-600 dark:text-gray-400 hover:text-gray-800 dark:hover:text-gray-200">
+            <X className="w-6 h-6" />
+          </button>
+        </div>
+
+        <div className="space-y-6">
+          <div>
+            <label className="block text-sm font-medium text-gray-700 dark:text-gray-300 mb-2">Category</label>
+            <select
+              name="category"
+              value={formData.category}
+              onChange={handleInputChange}
+              className="w-full px-4 py-3 border border-gray-300 dark:border-gray-600 rounded-xl focus:ring-2 focus:ring-purple-500 focus:border-transparent bg-white dark:bg-gray-700 text-gray-900 dark:text-white"
+            >
+              <option value="">Select category</option>
+              {categories.map((c) => (
+                <option key={c} value={c}>
+                  {c}
+                </option>
+              ))}
+            </select>
+          </div>
+
+          <div>
+            <label className="block text-sm font-medium text-gray-700 dark:text-gray-300 mb-2">Budget Limit</label>
+            <div className="relative">
+              <span className="absolute left-4 top-3 text-gray-500 dark:text-gray-400">$</span>
+              <input
+                type="number"
+                name="budget"
+                value={formData.budget}
+                onChange={handleInputChange}
+                placeholder="0.00"
+                className="w-full pl-8 pr-4 py-3 border border-gray-300 dark:border-gray-600 rounded-xl focus:ring-2 focus:ring-purple-500 focus:border-transparent bg-white dark:bg-gray-700 text-gray-900 dark:text-white placeholder-gray-500 dark:placeholder-gray-400"
+              />
+            </div>
+          </div>
+
+          <div>
+            <label className="block text-sm font-medium text-gray-700 dark:text-gray-300 mb-2">Period</label>
+            <select
+              name="period"
+              value={formData.period}
+              onChange={handleInputChange}
+              className="w-full px-4 py-3 border border-gray-300 dark:border-gray-600 rounded-xl focus:ring-2 focus:ring-purple-500 focus:border-transparent bg-white dark:bg-gray-700 text-gray-900 dark:text-white"
+            >
+              <option value="Weekly">Weekly</option>
+              <option value="Monthly">Monthly</option>
+              <option value="Yearly">Yearly</option>
+            </select>
+          </div>
+        </div>
+
+        <div className="flex space-x-4 mt-8">
+          <button
+            onClick={onClose}
+            className="flex-1 px-6 py-3 border border-gray-300 dark:border-gray-600 text-gray-700 dark:text-gray-300 rounded-xl hover:bg-gray-50 dark:hover:bg-gray-700 transition-colors"
+          >
+            Cancel
+          </button>
+          <button onClick={handleSave} className="flex-1 bg-blue-600 text-white px-6 py-3 rounded-xl hover:bg-blue-700 transition-colors">
+            Add Budget
+          </button>
+        </div>
+      </div>
+    </div>
+  );
+};
+
 // Add this component after BudgetForm component:
 
 const AnalyticsDashboard = ({ onClose, expenses, budgets }) => {
@@ -608,164 +717,11 @@ const AnalyticsDashboard = ({ onClose, expenses, budgets }) => {
     </div>
   );
 };
-}> = ({ onClose, onSave, budgets, setBudgets }) => {
-  const [formData, setFormData] = useState({ category: "", budget: "", period: "Monthly" });
-
-  const categories = [
-    "Food & Dining",
-    "Transportation",
-    "Shopping",
-    "Entertainment",
-    "Bills & Utilities",
-    "Healthcare",
-    "Travel",
-    "Education",
-    "Business",
-    "Other",
-  ];
-
-  const handleInputChange = (e: React.ChangeEvent<HTMLInputElement | HTMLSelectElement>) => {
-    const { name, value } = e.target as any;
-    setFormData((p) => ({ ...p, [name]: value }));
-  };
-
-  const handleSave = () => {
-    if (!formData.category || !formData.budget || parseFloat(formData.budget) <= 0) {
-      alert("Please select a category and enter a valid budget amount");
-      return;
-    }
-    const idx = budgets.findIndex((b) => b.category === formData.category);
-    if (idx >= 0) {
-      const updated = [...budgets];
-      updated[idx] = { ...updated[idx], budget: parseFloat(formData.budget), period: formData.period };
-      setBudgets(updated);
-    } else {
-      const newBudget = {
-        id: Date.now(),
-        category: formData.category,
-        budget: parseFloat(formData.budget),
-        spent: 0,
-        period: formData.period,
-      };
-      setBudgets([...budgets, newBudget]);
-    }
-    onSave();
-    onClose();
-  };
-
-  return (
-    <div className="fixed inset-0 bg-black/50 flex items-center justify-center z-50 p-4">
-      <div className="bg-white dark:bg-gray-800 rounded-2xl p-6 w-full max-w-md">
-        <div className="flex items-center justify-between mb-6">
-          <h2 className="text-xl font-semibold text-gray-900 dark:text-white">Add Budget</h2>
-          <button onClick={onClose} className="text-gray-600 dark:text-gray-400 hover:text-gray-800 dark:hover:text-gray-200">
-            <X className="w-6 h-6" />
-          </button>
-        </div>
-
-        <div className="space-y-6">
-          <div>
-            <label className="block text-sm font-medium text-gray-700 dark:text-gray-300 mb-2">Category</label>
-            <select
-              name="category"
-              value={formData.category}
-              onChange={handleInputChange}
-              className="w-full px-4 py-3 border border-gray-300 dark:border-gray-600 rounded-xl focus:ring-2 focus:ring-purple-500 focus:border-transparent bg-white dark:bg-gray-700 text-gray-900 dark:text-white"
-            >
-              <option value="">Select category</option>
-              {categories.map((c) => (
-                <option key={c} value={c}>
-                  {c}
-                </option>
-              ))}
-            </select>
-          </div>
-
-          <div>
-            <label className="block text-sm font-medium text-gray-700 dark:text-gray-300 mb-2">Budget Limit</label>
-            <div className="relative">
-              <span className="absolute left-4 top-3 text-gray-500 dark:text-gray-400">$</span>
-              <input
-                type="number"
-                name="budget"
-                value={formData.budget}
-                onChange={handleInputChange}
-                placeholder="0.00"
-                className="w-full pl-8 pr-4 py-3 border border-gray-300 dark:border-gray-600 rounded-xl focus:ring-2 focus:ring-purple-500 focus:border-transparent bg-white dark:bg-gray-700 text-gray-900 dark:text-white placeholder-gray-500 dark:placeholder-gray-400"
-              />
-            </div>
-          </div>
-
-          <div>
-            <label className="block text-sm font-medium text-gray-700 dark:text-gray-300 mb-2">Period</label>
-            <select
-              name="period"
-              value={formData.period}
-              onChange={handleInputChange}
-              className="w-full px-4 py-3 border border-gray-300 dark:border-gray-600 rounded-xl focus:ring-2 focus:ring-purple-500 focus:border-transparent bg-white dark:bg-gray-700 text-gray-900 dark:text-white"
-            >
-              <option value="Weekly">Weekly</option>
-              <option value="Monthly">Monthly</option>
-              <option value="Yearly">Yearly</option>
-            </select>
-          </div>
-        </div>
-
-        <div className="flex space-x-4 mt-8">
-          <button
-            onClick={onClose}
-            className="flex-1 px-6 py-3 border border-gray-300 dark:border-gray-600 text-gray-700 dark:text-gray-300 rounded-xl hover:bg-gray-50 dark:hover:bg-gray-700 transition-colors"
-          >
-            Cancel
-          </button>
-          <button onClick={handleSave} className="flex-1 bg-blue-600 text-white px-6 py-3 rounded-xl hover:bg-blue-700 transition-colors">
-            Add Budget
-          </button>
-        </div>
-      </div>
-    </div>
-  );
-};
 
 /* =========================
    DASHBOARD SCREEN (renamed to avoid collisions)
    ========================= */
-// Find the Dashboard component header section and replace with:
-<header className="bg-white dark:bg-gray-800 shadow-sm border-b dark:border-gray-700">
-  <div className="max-w-7xl mx-auto px-4 py-4 flex items-center justify-between">
-    <BudgetTalkLogo />
-    
-    <div className="flex items-center space-x-4">
-      {/* Theme Toggle Button */}
-      <button
-        onClick={toggleTheme}
-        className="p-2 text-gray-600 dark:text-gray-400 hover:text-purple-600 dark:hover:text-purple-400 transition-colors rounded-lg hover:bg-gray-100 dark:hover:bg-gray-700"
-        title={isDarkMode ? 'Switch to Light Mode' : 'Switch to Dark Mode'}
-      >
-        {isDarkMode ? (
-          <Sun className="w-5 h-5" />
-        ) : (
-          <Moon className="w-5 h-5" />
-        )}
-      </button>
-      
-      <div className="text-right">
-        <div className="text-sm text-gray-600 dark:text-gray-400">Welcome back</div>
-        <div className="font-semibold text-gray-900 dark:text-white">{user.name}</div>
-        <div className="text-xs text-purple-600 dark:text-purple-400 capitalize">{user.type} Account</div>
-      </div>
-      
-      <button
-        onClick={onSignOut}
-        className="text-gray-600 dark:text-gray-400 hover:text-red-600 dark:hover:text-red-400 transition-colors p-2 rounded-lg hover:bg-gray-100 dark:hover:bg-gray-700"
-        title="Sign Out"
-      >
-        <LogOut className="w-5 h-5" />
-      </button>
-    </div>
-  </div>
-</header>
-}> = ({ user, onSignOut }) => {
+const DashboardScreen: React.FC<{ user: any; onSignOut: () => void }> = ({ user, onSignOut }) => {
   const { isDarkMode, toggleTheme } = useTheme();
 
   const [expenses, setExpenses] = useState<any[]>([]);
@@ -967,58 +923,58 @@ const handleVoiceExpense = () => {
             </button>
           </div>
 
-          // Find this section in the Dashboard component and replace it:
-{budgets.length === 0 ? (
-  <div className="text-center py-12">
-    <BarChart3 className="w-16 h-16 text-gray-400 mx-auto mb-4" />
-    <p className="text-gray-600 dark:text-gray-400 mb-4">No budgets set</p>
-    <button 
-      onClick={() => setShowBudgetForm(true)}
-      className="bg-blue-600 text-white px-6 py-3 rounded-full hover:bg-blue-700 transition-colors"
-    >
-      Create Your First Budget
-    </button>
-  </div>
-) : (
-  <div className="grid grid-cols-1 md:grid-cols-2 gap-6">
-    {budgets.map((budget, index) => {
-      // Calculate actual spent amount from expenses
-      const actualSpent = expenses
-        .filter(expense => expense.category === budget.category)
-        .reduce((sum, expense) => sum + expense.amount, 0);
-      
-      const percentage = (actualSpent / budget.budget) * 100;
-      const isOverBudget = percentage > 100;
-      
-      return (
-        <div key={index} className="space-y-3">
-          <div className="flex justify-between items-center">
-            <span className="font-medium text-gray-700 dark:text-gray-300">{budget.category}</span>
-            <span className={`text-sm ${isOverBudget ? 'text-red-600' : 'text-gray-600 dark:text-gray-400'}`}>
-              ${actualSpent.toFixed(2)} / ${budget.budget}
-            </span>
-          </div>
-          <div className="w-full bg-gray-200 dark:bg-gray-700 rounded-full h-3">
-            <div 
-              className={`h-3 rounded-full transition-all duration-300 ${
-                isOverBudget 
-                  ? 'bg-gradient-to-r from-red-500 to-red-600' 
-                  : percentage > 80 
-                    ? 'bg-gradient-to-r from-yellow-500 to-orange-500'
-                    : 'bg-gradient-to-r from-green-500 to-green-600'
-              }`}
-              style={{ width: `${Math.min(percentage, 100)}%` }}
-            ></div>
-          </div>
-          <div className="text-xs text-gray-500 dark:text-gray-400">
-            {percentage.toFixed(1)}% used
-            {isOverBudget && <span className="text-red-600 ml-2">Over budget!</span>}
-          </div>
+          {budgets.length === 0 ? (
+            <div className="text-center py-12">
+              <BarChart3 className="w-16 h-16 text-gray-400 mx-auto mb-4" />
+              <p className="text-gray-600 dark:text-gray-400 mb-4">No budgets set</p>
+              <button 
+                onClick={() => setShowBudgetForm(true)}
+                className="bg-blue-600 text-white px-6 py-3 rounded-full hover:bg-blue-700 transition-colors"
+              >
+                Create Your First Budget
+              </button>
+            </div>
+          ) : (
+            <div className="grid grid-cols-1 md:grid-cols-2 gap-6">
+              {budgets.map((budget, index) => {
+                // Calculate actual spent amount from expenses
+                const actualSpent = expenses
+                  .filter(expense => expense.category === budget.category)
+                  .reduce((sum, expense) => sum + expense.amount, 0);
+                
+                const percentage = (actualSpent / budget.budget) * 100;
+                const isOverBudget = percentage > 100;
+                
+                return (
+                  <div key={index} className="space-y-3">
+                    <div className="flex justify-between items-center">
+                      <span className="font-medium text-gray-700 dark:text-gray-300">{budget.category}</span>
+                      <span className={`text-sm ${isOverBudget ? 'text-red-600' : 'text-gray-600 dark:text-gray-400'}`}>
+                        ${actualSpent.toFixed(2)} / ${budget.budget}
+                      </span>
+                    </div>
+                    <div className="w-full bg-gray-200 dark:bg-gray-700 rounded-full h-3">
+                      <div 
+                        className={`h-3 rounded-full transition-all duration-300 ${
+                          isOverBudget 
+                            ? 'bg-gradient-to-r from-red-500 to-red-600' 
+                            : percentage > 80 
+                              ? 'bg-gradient-to-r from-yellow-500 to-orange-500'
+                              : 'bg-gradient-to-r from-green-500 to-green-600'
+                        }`}
+                        style={{ width: `${Math.min(percentage, 100)}%` }}
+                      ></div>
+                    </div>
+                    <div className="text-xs text-gray-500 dark:text-gray-400">
+                      {percentage.toFixed(1)}% used
+                      {isOverBudget && <span className="text-red-600 ml-2">Over budget!</span>}
+                    </div>
+                  </div>
+                );
+              })}
+            </div>
+          )}
         </div>
-      );
-    })}
-  </div>
-)}
 
         {/* Recent Expenses */}
         <div className="bg-white dark:bg-gray-800 rounded-2xl p-6 shadow-sm">
