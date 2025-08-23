@@ -584,41 +584,49 @@ const ExpenseForm = ({ onClose, onSave, expenses, setExpenses }) => {
           {budgets.length === 0 ? (
             <div className="text-center py-12">
               <BarChart3 className="w-16 h-16 text-gray-400 mx-auto mb-4" />
-              <p className="text-gray-500 dark:text-gray-400">No budgets set yet</p>
-              <button 
-                onClick={() => setShowBudgetForm(true)}
-                className="mt-4 bg-blue-600 text-white px-6 py-2 rounded-xl hover:bg-blue-700 transition-colors"
-              >
-                Create Your First Budget
-              </button>
             </div>
           ) : (
-            <div className="space-y-4">
+            <div className="grid grid-cols-1 md:grid-cols-2 gap-6">
               {budgets.map(budget => {
                 const percentage = (budget.spent / budget.budget) * 100;
                 const isOverBudget = percentage > 100;
                 
                 return (
                   <div key={budget.id} className="p-4 border border-gray-200 dark:border-gray-700 rounded-xl">
-                    <div className="flex justify-between items-center mb-2">
+                    <div className="flex justify-between items-center mb-3">
                       <h4 className="font-medium text-gray-900 dark:text-white">{budget.category}</h4>
-                      <div className="text-right">
-                        <div className="text-sm text-gray-600 dark:text-gray-400">
-                          ${budget.spent} / ${budget.budget}
-                        </div>
-                        <div className={`text-xs font-medium ${isOverBudget ? 'text-red-600' : 'text-green-600'}`}>
-                          {percentage.toFixed(1)}% used
-                        </div>
+                      <span className="text-sm text-gray-500 dark:text-gray-400">{budget.period}</span>
+                    </div>
+                    
+                    <div className="mb-3">
+                      <div className="flex justify-between text-sm mb-1">
+                        <span className="text-gray-600 dark:text-gray-400">
+                          ${budget.spent} of ${budget.budget}
+                        </span>
+                        <span className={`font-medium ${isOverBudget ? 'text-red-600' : 'text-gray-900 dark:text-white'}`}>
+                          {percentage.toFixed(0)}%
+                        </span>
+                      </div>
+                      
+                      <div className="w-full bg-gray-200 dark:bg-gray-700 rounded-full h-2">
+                        <div 
+                          className={`h-2 rounded-full transition-all duration-300 ${
+                            isOverBudget 
+                              ? 'bg-red-500' 
+                              : percentage > 80 
+                                ? 'bg-yellow-500' 
+                                : 'bg-green-500'
+                          }`}
+                          style={{ width: `${Math.min(percentage, 100)}%` }}
+                        ></div>
                       </div>
                     </div>
-                    <div className="w-full bg-gray-200 dark:bg-gray-700 rounded-full h-2">
-                      <div 
-                        className={`h-2 rounded-full transition-all duration-300 ${
-                          isOverBudget ? 'bg-red-500' : 'bg-green-500'
-                        }`}
-                        style={{ width: `${Math.min(percentage, 100)}%` }}
-                      ></div>
-                    </div>
+                    
+                    {isOverBudget && (
+                      <div className="text-xs text-red-600 dark:text-red-400 font-medium">
+                        Over budget by ${(budget.spent - budget.budget).toFixed(2)}
+                      </div>
+                    )}
                   </div>
                 );
               })}
@@ -645,22 +653,22 @@ const ExpenseForm = ({ onClose, onSave, expenses, setExpenses }) => {
               <p className="text-gray-500 dark:text-gray-400">No expenses recorded yet</p>
               <button 
                 onClick={() => setShowExpenseForm(true)}
-                className="mt-4 bg-green-600 text-white px-6 py-2 rounded-xl hover:bg-green-700 transition-colors"
+                className="mt-4 bg-blue-600 text-white px-6 py-2 rounded-xl hover:bg-blue-700 transition-colors"
               >
                 Add Your First Expense
               </button>
             </div>
           ) : (
-            <div className="space-y-3">
+            <div className="space-y-4">
               {expenses.slice(0, 5).map(expense => (
-                <div key={expense.id} className="flex items-center justify-between p-4 border border-gray-200 dark:border-gray-700 rounded-xl">
+                <div key={expense.id} className="flex items-center justify-between p-4 border border-gray-200 dark:border-gray-700 rounded-xl hover:bg-gray-50 dark:hover:bg-gray-700/50 transition-colors">
                   <div className="flex items-center space-x-4">
-                    <div className="w-10 h-10 bg-gradient-to-br from-purple-500 to-blue-500 rounded-full flex items-center justify-center">
-                      <DollarSign className="w-5 h-5 text-white" />
+                    <div className="w-10 h-10 bg-blue-100 dark:bg-blue-900/30 rounded-full flex items-center justify-center">
+                      <DollarSign className="w-5 h-5 text-blue-600 dark:text-blue-400" />
                     </div>
                     <div>
                       <div className="font-medium text-gray-900 dark:text-white">{expense.description}</div>
-                      <div className="text-sm text-gray-600 dark:text-gray-400">{expense.category} • {expense.date}</div>
+                      <div className="text-sm text-gray-500 dark:text-gray-400">{expense.category} • {expense.date}</div>
                     </div>
                   </div>
                   <div className="text-right">
@@ -712,30 +720,4 @@ const ExpenseForm = ({ onClose, onSave, expenses, setExpenses }) => {
   );
 };
 
-// Main App Component
-const App = () => {
-  const [user, setUser] = useState(null);
-  const [isSignedIn, setIsSignedIn] = useState(false);
-
-  const handleSignIn = (userData) => {
-    setUser(userData);
-    setIsSignedIn(true);
-  };
-
-  const handleSignOut = () => {
-    setUser(null);
-    setIsSignedIn(false);
-  };
-
-  return (
-    <ThemeProvider>
-      {isSignedIn ? (
-        <Dashboard user={user} onSignOut={handleSignOut} />
-      ) : (
-        <LandingPage onSignIn={handleSignIn} />
-      )}
-    </ThemeProvider>
-  );
-};
-
-export default App;
+export default Dashboard;
