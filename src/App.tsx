@@ -668,163 +668,221 @@ const Dashboard = ({ user, onSignOut }) => {
   const totalBudget = budgets.reduce((sum, budget) => sum + budget.budget, 0);
 
   return (
-    <>
-      <div className="min-h-screen bg-gradient-to-br from-gray-50 to-gray-100 dark:from-gray-900 dark:to-gray-800">
-        <header className="bg-white dark:bg-gray-800 shadow-sm border-b dark:border-gray-700">
-          <div className="max-w-7xl mx-auto px-4 py-4 flex items-center justify-between">
-            <BudgetTalkLogo />
-            <div className="flex items-center space-x-4">
-              <button onClick={toggleTheme} className="p-2 text-gray-600 dark:text-gray-400 hover:text-purple-600">
-                {isDarkMode ? <Sun className="w-5 h-5" /> : <Moon className="w-5 h-5" />}
-              </button>
-              <div className="text-right">
-                <div className="text-sm text-gray-600 dark:text-gray-400">Welcome back</div>
-                <div className="font-semibold text-gray-900 dark:text-white">{user.name}</div>
-              </div>
-              <button onClick={onSignOut} className="text-gray-600 dark:text-gray-400 hover:text-red-600 p-2">
-                <LogOut className="w-5 h-5" />
-              </button>
-            </div>
-          </div>
-        </header>
-
-        <div className="max-w-7xl mx-auto p-6">
-          <div className="grid grid-cols-1 md:grid-cols-4 gap-6 mb-8">
-            <div className="bg-gradient-to-br from-purple-500 to-purple-600 text-white p-6 rounded-2xl">
-              <div className="text-sm opacity-90">Total Budget</div>
-              <div className="text-3xl font-bold">${totalBudget}</div>
-            </div>
-            <div className="bg-gradient-to-br from-blue-500 to-blue-600 text-white p-6 rounded-2xl">
-              <div className="text-sm opacity-90">Total Spent</div>
-              <div className="text-3xl font-bold">${totalSpent}</div>
-            </div>
-            <div className="bg-gradient-to-br from-green-500 to-green-600 text-white p-6 rounded-2xl">
-              <div className="text-sm opacity-90">Remaining</div>
-              <div className="text-3xl font-bold">${totalBudget - totalSpent}</div>
-            </div>
-            <div className="bg-gradient-to-br from-orange-500 to-orange-600 text-white p-6 rounded-2xl">
-              <div className="text-sm opacity-90">Expenses</div>
-              <div className="text-3xl font-bold">{expenses.length}</div>
-            </div>
-          </div>
-
-          <div className="grid grid-cols-1 md:grid-cols-4 gap-6 mb-8">
-            <button 
-              onClick={handleVoiceExpense}
-              disabled={isRecording}
-              className="bg-gradient-to-r from-purple-600 to-blue-600 text-white p-6 rounded-2xl shadow-lg hover:shadow-xl transition-all duration-300 transform hover:-translate-y-1 disabled:opacity-50"
-            >
-              <div className="flex items-center space-x-4">
-                <div className="relative">
-                  <Mic className="w-8 h-8" />
-                  {isRecording && <div className="absolute -inset-2 bg-white rounded-full animate-ping opacity-30"></div>}
-                </div>
-                <div className="text-left">
-                  <div className="font-semibold text-lg">{isRecording ? 'Recording...' : 'Add by Voice'}</div>
-                  <div className="text-sm opacity-90">{isRecording ? 'Listening...' : 'Voice entry'}</div>
-                </div>
-              </div>
+    <div className="min-h-screen bg-gradient-to-br from-gray-50 to-gray-100 dark:from-gray-900 dark:to-gray-800">
+      <header className="bg-white dark:bg-gray-800 shadow-sm border-b dark:border-gray-700">
+        <div className="max-w-7xl mx-auto px-4 py-4 flex items-center justify-between">
+          <BudgetTalkLogo />
+          <div className="flex items-center space-x-4">
+            <button onClick={toggleTheme} className="p-2 text-gray-600 dark:text-gray-400 hover:text-purple-600">
+              {isDarkMode ? <Sun className="w-5 h-5" /> : <Moon className="w-5 h-5" />}
             </button>
-            
-            <button 
-              onClick={() => setShowExpenseForm(true)}
-              className="bg-gradient-to-r from-green-600 to-teal-600 text-white p-6 rounded-2xl shadow-lg hover:shadow-xl transition-all duration-300 transform hover:-translate-y-1"
-            >
-              <div className="flex items-center space-x-4">
-                <Plus className="w-8 h-8" />
-                <div className="text-left">
-                  <div className="font-semibold text-lg">Manual Entry</div>
-                  <div className="text-sm opacity-90">Add expense</div>
-                </div>
-              </div>
-            </button>
-            
-            <button 
-              onClick={() => setShowBudgetForm(true)}
-              className="bg-gradient-to-r from-indigo-600 to-purple-600 text-white p-6 rounded-2xl shadow-lg hover:shadow-xl transition-all duration-300 transform hover:-translate-y-1"
-            >
-              <div className="flex items-center space-x-4">
-                <BarChart3 className="w-8 h-8" />
-                <div className="text-left">
-                  <div className="font-semibold text-lg">Add Budget</div>
-                  <div className="text-sm opacity-90">Set limits</div>
-                </div>
-              </div>
-            </button>
-
-            <button 
-              onClick={() => setShowAnalytics(true)}
-              className="bg-gradient-to-r from-orange-600 to-red-600 text-white p-6 rounded-2xl shadow-lg hover:shadow-xl transition-all duration-300 transform hover:-translate-y-1"
-            >
-              <div className="flex items-center space-x-4">
-                <TrendingUp className="w-8 h-8" />
-                <div className="text-left">
-                  <div className="font-semibold text-lg">View Analytics</div>
-                  <div className="text-sm opacity-90">Detailed insights</div>
-                </div>
-              </div>
+            <div className="text-right">
+              <div className="text-sm text-gray-600 dark:text-gray-400">Welcome back</div>
+              <div className="font-semibold text-gray-900 dark:text-white">{user.name}</div>
+            </div>
+            <button onClick={onSignOut} className="text-gray-600 dark:text-gray-400 hover:text-red-600 p-2">
+              <LogOut className="w-5 h-5" />
             </button>
           </div>
+        </div>
+      </header>
 
-          <div className="bg-white dark:bg-gray-800 rounded-2xl p-6 shadow-sm mb-8">
-            <div className="flex justify-between items-center mb-6">
-              <h3 className="text-xl font-semibold text-gray-900 dark:text-white">Recent Expenses</h3>
-            </div>
-            
-            <div className="space-y-4">
-              {expenses.map((expense) => (
-                <div key={expense.id} className="flex items-center justify-between p-4 bg-gray-50 dark:bg-gray-700 rounded-xl">
-                  <div className="flex items-center space-x-4">
-                    <div className={`w-12 h-12 rounded-xl flex items-center justify-center text-white ${
-                      expense.category === 'Food & Dining' ? 'bg-orange-500' :
-                      expense.category === 'Transportation' ? 'bg-blue-500' :
-                      expense.category === 'Shopping' ? 'bg-purple-500' : 'bg-gray-500'
-                    }`}>
-                      {expense.category === 'Food & Dining' ? '🍽️' :
-                       expense.category === 'Transportation' ? '🚗' :
-                       expense.category === 'Shopping' ? '🛒' : '💼'}
-                    </div>
-                    <div>
-                      <div className="font-semibold text-gray-900 dark:text-white">{expense.description}</div>
-                      <div className="text-sm text-gray-600 dark:text-gray-400">{expense.category}</div>
-                    </div>
-                  </div>
-                  <div className="text-xl font-bold text-gray-900 dark:text-white">
-                    ${expense.amount}
-                  </div>
-                </div>
-              ))}
-            </div>
+      <div className="max-w-7xl mx-auto p-6">
+        <div className="grid grid-cols-1 md:grid-cols-4 gap-6 mb-8">
+          <div className="bg-gradient-to-br from-purple-500 to-purple-600 text-white p-6 rounded-2xl">
+            <div className="text-sm opacity-90">Total Budget</div>
+            <div className="text-3xl font-bold">${totalBudget}</div>
+          </div>
+          <div className="bg-gradient-to-br from-blue-500 to-blue-600 text-white p-6 rounded-2xl">
+            <div className="text-sm opacity-90">Total Spent</div>
+            <div className="text-3xl font-bold">${totalSpent}</div>
+          </div>
+          <div className="bg-gradient-to-br from-green-500 to-green-600 text-white p-6 rounded-2xl">
+            <div className="text-sm opacity-90">Remaining</div>
+            <div className="text-3xl font-bold">${totalBudget - totalSpent}</div>
+          </div>
+          <div className="bg-gradient-to-br from-orange-500 to-orange-600 text-white p-6 rounded-2xl">
+            <div className="text-sm opacity-90">Expenses</div>
+            <div className="text-3xl font-bold">{expenses.length}</div>
           </div>
         </div>
 
-        {showExpenseForm && (
-          <ExpenseForm 
-            onClose={() => setShowExpenseForm(false)}
-            onSave={() => {}}
-            expenses={expenses}
-            setExpenses={setExpenses}
-          />
-        )}
+        <div className="grid grid-cols-1 md:grid-cols-4 gap-6 mb-8">
+          <button 
+            onClick={handleVoiceExpense}
+            disabled={isRecording}
+            className="bg-gradient-to-r from-purple-600 to-blue-600 text-white p-6 rounded-2xl shadow-lg hover:shadow-xl transition-all duration-300 transform hover:-translate-y-1 disabled:opacity-50"
+          >
+            <div className="flex items-center space-x-4">
+              <div className="relative">
+                <Mic className="w-8 h-8" />
+                {isRecording && <div className="absolute -inset-2 bg-white rounded-full animate-ping opacity-30"></div>}
+              </div>
+              <div className="text-left">
+                <div className="font-semibold text-lg">{isRecording ? 'Recording...' : 'Add by Voice'}</div>
+                <div className="text-sm opacity-90">{isRecording ? 'Listening...' : 'Voice entry'}</div>
+              </div>
+            </div>
+          </button>
+          
+          <button 
+            onClick={() => setShowExpenseForm(true)}
+            className="bg-gradient-to-r from-green-600 to-teal-600 text-white p-6 rounded-2xl shadow-lg hover:shadow-xl transition-all duration-300 transform hover:-translate-y-1"
+          >
+            <div className="flex items-center space-x-4">
+              <Plus className="w-8 h-8" />
+              <div className="text-left">
+                <div className="font-semibold text-lg">Manual Entry</div>
+                <div className="text-sm opacity-90">Add expense</div>
+              </div>
+            </div>
+          </button>
+          
+          <button 
+            onClick={() => setShowBudgetForm(true)}
+            className="bg-gradient-to-r from-indigo-600 to-purple-600 text-white p-6 rounded-2xl shadow-lg hover:shadow-xl transition-all duration-300 transform hover:-translate-y-1"
+          >
+            <div className="flex items-center space-x-4">
+              <BarChart3 className="w-8 h-8" />
+              <div className="text-left">
+                <div className="font-semibold text-lg">Add Budget</div>
+                <div className="text-sm opacity-90">Set limits</div>
+              </div>
+            </div>
+          </button>
 
-        {showBudgetForm && (
-          <BudgetForm 
-            onClose={() => setShowBudgetForm(false)}
-            onSave={() => {}}
-            budgets={budgets}
-            setBudgets={setBudgets}
-          />
-        )}
+          <button 
+            onClick={() => setShowAnalytics(true)}
+            className="bg-gradient-to-r from-orange-600 to-red-600 text-white p-6 rounded-2xl shadow-lg hover:shadow-xl transition-all duration-300 transform hover:-translate-y-1"
+          >
+            <div className="flex items-center space-x-4">
+              <TrendingUp className="w-8 h-8" />
+              <div className="text-left">
+                <div className="font-semibold text-lg">View Analytics</div>
+                <div className="text-sm opacity-90">Detailed insights</div>
+              </div>
+            </div>
+          </button>
+        </div>
 
-        {showAnalytics && (
-          <AnalyticsDashboard 
-            onClose={() => setShowAnalytics(false)}
-            expenses={expenses}
-            budgets={budgets}
-          />
-        )}
+        <div className="bg-white dark:bg-gray-800 rounded-2xl p-6 shadow-sm mb-8">
+          <div className="flex justify-between items-center mb-6">
+            <h3 className="text-xl font-semibold text-gray-900 dark:text-white">Recent Expenses</h3>
+          </div>
+          
+          <div className="space-y-4">
+            {expenses.map((expense) => (
+              <div key={expense.id} className="flex items-center justify-between p-4 bg-gray-50 dark:bg-gray-700 rounded-xl">
+                <div className="flex items-center space-x-4">
+                  <div className={`w-12 h-12 rounded-xl flex items-center justify-center text-white ${
+                    expense.category === 'Food & Dining' ? 'bg-orange-500' :
+                    expense.category === 'Transportation' ? 'bg-blue-500' :
+                    expense.category === 'Shopping' ? 'bg-purple-500' : 'bg-gray-500'
+                  }`}>
+                    {expense.category === 'Food & Dining' ? '🍽️' :
+                     expense.category === 'Transportation' ? '🚗' :
+                     expense.category === 'Shopping' ? '🛒' : '💼'}
+                  </div>
+                  <div>
+                    <div className="font-semibold text-gray-900 dark:text-white">{expense.description}</div>
+                    <div className="text-sm text-gray-600 dark:text-gray-400">{expense.category}</div>
+                  </div>
+                </div>
+                <div className="text-xl font-bold text-gray-900 dark:text-white">
+                  ${expense.amount}
+                </div>
+              </div>
+            ))}
+          </div>
+        </div>
       </div>
 
+      {showExpenseForm && (
+        <ExpenseForm 
+          onClose={() => setShowExpenseForm(false)}
+          onSave={() => {}}
+          expenses={expenses}
+          setExpenses={setExpenses}
+        />
+      )}
+
+      {showBudgetForm && (
+        <BudgetForm 
+          onClose={() => setShowBudgetForm(false)}
+          onSave={() => {}}
+          budgets={budgets}
+          setBudgets={setBudgets}
+        />
+      )}
+
+      {showAnalytics && (
+        <AnalyticsDashboard 
+          onClose={() => setShowAnalytics(false)}
+          expenses={expenses}
+          budgets={budgets}
+        />
+      )}
+    </div>
+  );
+};
+
+// Dashboard Component (continued)
+const DashboardContinued = ({ user, onSignOut }) => {
+  const { isDarkMode, toggleTheme } = useTheme();
+  const [expenses, setExpenses] = useState([
+    { id: 1, category: 'Food & Dining', amount: 25, description: 'Lunch at cafe', date: '2024-01-15' },
+    { id: 2, category: 'Transportation', amount: 15, description: 'Uber ride', date: '2024-01-15' },
+    { id: 3, category: 'Shopping', amount: 89, description: 'Groceries', date: '2024-01-14' }
+  ]);
+  
+  const [budgets, setBudgets] = useState([
+    { id: 1, category: 'Food & Dining', budget: 500, spent: 325, period: 'Monthly' },
+    { id: 2, category: 'Transportation', budget: 200, spent: 145, period: 'Monthly' },
+    { id: 3, category: 'Shopping', budget: 300, spent: 289, period: 'Monthly' },
+    { id: 4, category: 'Entertainment', budget: 150, spent: 67, period: 'Monthly' }
+  ]);
+
+  const [isRecording, setIsRecording] = useState(false);
+  const [showExpenseForm, setShowExpenseForm] = useState(false);
+  const [showBudgetForm, setShowBudgetForm] = useState(false);
+  const [showAnalytics, setShowAnalytics] = useState(false);
+
+  const handleVoiceExpense = () => {
+    if (isRecording) return;
+    
+    setIsRecording(true);
+    
+    setTimeout(() => {
+      const voiceExpenses = [
+        { description: 'Coffee at Starbucks', amount: 8, category: 'Food & Dining' },
+        { description: 'Uber ride to office', amount: 15, category: 'Transportation' },
+        { description: 'Lunch with client', amount: 35, category: 'Food & Dining' },
+        { description: 'Office supplies', amount: 22, category: 'Shopping' },
+        { description: 'Grocery shopping', amount: 67, category: 'Shopping' }
+      ];
+      
+      const randomExpense = voiceExpenses[Math.floor(Math.random() * voiceExpenses.length)];
+      
+      const newExpense = {
+        id: Date.now(),
+        category: randomExpense.category,
+        amount: randomExpense.amount,
+        description: `🎤 ${randomExpense.description}`,
+        date: new Date().toISOString().split('T')[0]
+      };
+      
+      setExpenses(prev => [newExpense, ...prev]);
+      setIsRecording(false);
+      
+      alert(`✅ Added: ${newExpense.description} - $${newExpense.amount}`);
+    }, 3000);
+  };
+
+  const totalSpent = expenses.reduce((sum, expense) => sum + expense.amount, 0);
+  const totalBudget = budgets.reduce((sum, budget) => sum + budget.budget, 0);
+
+  return (
+    <div className="min-h-screen bg-gradient-to-br from-gray-50 to-gray-100 dark:from-gray-900 dark:to-gray-800">
       <header className="bg-white dark:bg-gray-800 shadow-sm border-b dark:border-gray-700">
         <div className="max-w-7xl mx-auto px-4 py-4 flex items-center justify-between">
           <BudgetTalkLogo />
@@ -1095,15 +1153,15 @@ const Dashboard = ({ user, onSignOut }) => {
       {showBudgetForm && (
         <BudgetForm onClose={() => setShowBudgetForm(false)} onSave={() => {}} budgets={budgets} setBudgets={setBudgets} />
       )}
-    </>
+    </div>
   );
 };
 
 /* =========================
    LOGIN PAGE (inline)
    ========================= */
-const LoginPage: React.FC<{ onLogin?: (info: any) => void; onBack?: () => void }> = ({ onLogin, onBack }) => {
-  const [currentView, setCurrentView] = useState<"selection" | "personal-login" | "business-register">("selection");
+const LoginPage = ({ onLogin, onBack }) => {
+  const [currentView, setCurrentView] = useState("selection");
   const [formData, setFormData] = useState({
     email: "",
     password: "",
@@ -1115,8 +1173,8 @@ const LoginPage: React.FC<{ onLogin?: (info: any) => void; onBack?: () => void }
   const [loading, setLoading] = useState(false);
   const { signInWithGoogle } = useAuth();
 
-  const handleInputChange = (e: React.ChangeEvent<HTMLInputElement>) => {
-    const { name, value } = e.target as any;
+  const handleInputChange = (e) => {
+    const { name, value } = e.target;
     setFormData((p) => ({ ...p, [name]: value }));
   };
 
@@ -1242,7 +1300,7 @@ const handleGoogleAuth = async (accountType) => {
 
           <div className="space-y-6">
             <button
-              onClick={handleGoogleAuth}
+              onClick={() => handleGoogleAuth('personal')}
               disabled={loading}
               className="w-full bg-white hover:bg-gray-50 text-gray-900 font-semibold py-3 px-4 rounded-xl flex items-center justify-center space-x-3 transition duration-300 shadow-lg disabled:opacity-50 disabled:cursor-not-allowed"
             >
@@ -1317,7 +1375,7 @@ const handleGoogleAuth = async (accountType) => {
 
           <div className="space-y-6">
             <button
-              onClick={handleGoogleAuth}
+              onClick={() => handleGoogleAuth('business')}
               disabled={loading}
               className="w-full bg-white hover:bg-gray-50 text-gray-900 font-semibold py-3 px-4 rounded-xl flex items-center justify-center space-x-3 transition duration-300 shadow-lg disabled:opacity-50 disabled:cursor-not-allowed"
             >
@@ -1441,7 +1499,7 @@ const handleGoogleAuth = async (accountType) => {
 /* =========================
    LANDING PAGE (inline)
    ========================= */
-const LandingPage: React.FC<{ onGetStarted: () => void }> = ({ onGetStarted }) => {
+const LandingPage = ({ onGetStarted }) => {
   const [isMenuOpen, setIsMenuOpen] = useState(false);
   const [isScrolled, setIsScrolled] = useState(false);
   useEffect(() => {
@@ -1822,7 +1880,7 @@ function App() {
     setCurrentView('login');
   };
 
-  const handleLogin = (userData: any) => {
+  const handleLogin = (userData) => {
     setUser(userData);
     setCurrentView('dashboard');
   };
