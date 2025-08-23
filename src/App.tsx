@@ -76,13 +76,34 @@ const ExpenseForm: React.FC<any> = ({ onClose, onSave, expenses, setExpenses }) 
     setFormData((p) => ({ ...p, [name]: value }));
   };
 
-  const handleVoiceInput = () => {
-    setIsVoiceRecording(true);
-    setTimeout(() => {
-      setIsVoiceRecording(false);
-      setFormData((p) => ({ ...p, description: 'Lunch at downtown cafe', amount: '25', category: 'Food & Dining' }));
-    }, 1200);
-  };
+const handleVoiceInput = async () => {
+  // start visual state
+  setIsVoiceRecording(true);
+
+  // try to get mic permission (no recording used in this mock, just permission)
+  try {
+    if (navigator?.mediaDevices?.getUserMedia) {
+      // ask permission; immediately stop the stream
+      const stream = await navigator.mediaDevices.getUserMedia({ audio: true });
+      stream.getTracks().forEach(t => t.stop());
+    }
+  } catch (err) {
+    // permission denied or not available – still proceed with mock
+    console.warn('Mic permission not granted (mock continues):', err);
+  }
+
+  // simulate recognition result
+  setTimeout(() => {
+    setFormData(prev => ({
+      ...prev,
+      description: 'Lunch at downtown cafe',
+      amount: '25',
+      category: 'Food & Dining'
+    }));
+    setIsVoiceRecording(false);
+    alert('🎤 Added voice input: "Lunch at downtown cafe, $25, Food & Dining"');
+  }, 1200);
+};
 
   const handleReceiptUpload = (e: React.ChangeEvent<HTMLInputElement>) => {
     const file = e.target.files?.[0] ?? null;
