@@ -18,7 +18,7 @@ export default function LandingPage() {
           {/* Actions right */}
           <div className="flex items-center gap-3">
             <Link
-              to="/app"
+              to="/login"
               className="rounded-full bg-brand-grad px-5 py-2 text-white font-medium shadow-soft hover:opacity-90 transition"
             >
               Get Started
