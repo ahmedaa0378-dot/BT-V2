@@ -721,46 +721,299 @@ const ExpenseForm = ({ onClose, onSave, expenses, setExpenses }) => {
 };
 
 const LoginPage = ({ onLogin, onBack }) => {
-  return (
-    <div className="min-h-screen bg-gradient-to-br from-purple-900 via-blue-900 to-indigo-900 flex items-center justify-center">
-      <div className="bg-white/10 backdrop-blur-md rounded-2xl p-8 w-full max-w-md">
-        <div className="text-center mb-8">
-          <BudgetTalkLogo size="large" className="justify-center mb-4" />
-          <h2 className="text-2xl font-bold text-white">Welcome to BudgetTalk</h2>
-          <p className="text-purple-100 mt-2">Choose your account type to get started</p>
-        </div>
-        
-        <div className="space-y-4">
-          <button
-            onClick={() => onLogin({ name: 'Personal User', type: 'personal' })}
-            className="w-full bg-gradient-to-r from-purple-600 to-blue-600 text-white py-4 rounded-xl font-semibold hover:from-purple-700 hover:to-blue-700 transition-all duration-300 shadow-lg hover:shadow-xl transform hover:-translate-y-0.5"
-          >
-            <div className="text-left px-4">
-              <div className="font-bold">Personal Account</div>
-              <div className="text-sm opacity-90">Track your personal expenses and budgets</div>
-            </div>
-          </button>
+  const [currentView, setCurrentView] = useState('selection'); // 'selection', 'personal-login', 'business-register'
+  const [formData, setFormData] = useState({
+    email: '',
+    password: '',
+    confirmPassword: '',
+    businessName: '',
+    fullName: '',
+    phone: ''
+  });
+
+  const handleInputChange = (e) => {
+    const { name, value } = e.target;
+    setFormData(prev => ({
+      ...prev,
+      [name]: value
+    }));
+  };
+
+  const handlePersonalLogin = () => {
+    // For now, simulate login - later we'll add Google Auth
+    onLogin({ 
+      name: formData.email || 'Personal User', 
+      type: 'personal',
+      email: formData.email 
+    });
+  };
+
+  const handleBusinessRegister = () => {
+    if (!formData.email || !formData.businessName || !formData.fullName) {
+      alert('Please fill in all required fields');
+      return;
+    }
+    
+    onLogin({ 
+      name: formData.businessName, 
+      type: 'business',
+      email: formData.email,
+      fullName: formData.fullName,
+      phone: formData.phone
+    });
+  };
+
+  // Account Selection View
+  if (currentView === 'selection') {
+    return (
+      <div className="min-h-screen bg-gradient-to-br from-purple-900 via-blue-900 to-indigo-900 flex items-center justify-center">
+        <div className="bg-white/10 backdrop-blur-md rounded-2xl p-8 w-full max-w-md">
+          <div className="text-center mb-8">
+            <BudgetTalkLogo size="large" className="justify-center mb-4" />
+            <h2 className="text-2xl font-bold text-white">Welcome to BudgetTalk</h2>
+            <p className="text-purple-100 mt-2">Choose your account type to get started</p>
+          </div>
+          
+          <div className="space-y-4">
+            <button
+              onClick={() => setCurrentView('personal-login')}
+              className="w-full bg-gradient-to-r from-purple-600 to-blue-600 text-white py-4 rounded-xl font-semibold hover:from-purple-700 hover:to-blue-700 transition-all duration-300 shadow-lg hover:shadow-xl transform hover:-translate-y-0.5"
+            >
+              <div className="text-left px-4">
+                <div className="font-bold">Personal Account</div>
+                <div className="text-sm opacity-90">Track your personal expenses and budgets</div>
+              </div>
+            </button>
+            
+            <button
+              onClick={() => setCurrentView('business-register')}
+              className="w-full bg-gradient-to-r from-green-600 to-teal-600 text-white py-4 rounded-xl font-semibold hover:from-green-700 hover:to-teal-700 transition-all duration-300 shadow-lg hover:shadow-xl transform hover:-translate-y-0.5"
+            >
+              <div className="text-left px-4">
+                <div className="font-bold">Business Account</div>
+                <div className="text-sm opacity-90">Manage business expenses and team budgets</div>
+              </div>
+            </button>
+          </div>
           
           <button
-            onClick={() => onLogin({ name: 'Business User', type: 'business' })}
-            className="w-full bg-gradient-to-r from-green-600 to-teal-600 text-white py-4 rounded-xl font-semibold hover:from-green-700 hover:to-teal-700 transition-all duration-300 shadow-lg hover:shadow-xl transform hover:-translate-y-0.5"
+            onClick={onBack}
+            className="w-full mt-6 text-gray-300 hover:text-white transition-colors py-2"
           >
-            <div className="text-left px-4">
-              <div className="font-bold">Business Account</div>
-              <div className="text-sm opacity-90">Manage business expenses and team budgets</div>
-            </div>
+            ← Back to Home
           </button>
         </div>
-        
-        <button
-          onClick={onBack}
-          className="w-full mt-6 text-gray-300 hover:text-white transition-colors py-2"
-        >
-          ← Back to Home
-        </button>
       </div>
-    </div>
-  );
+    );
+  }
+
+  // Personal Login View (Simple Google Auth only)
+  if (currentView === 'personal-login') {
+    return (
+      <div className="min-h-screen bg-gradient-to-br from-purple-900 via-blue-900 to-indigo-900 flex items-center justify-center">
+        <div className="bg-white/10 backdrop-blur-md rounded-2xl p-8 w-full max-w-md">
+          <div className="text-center mb-8">
+            <BudgetTalkLogo size="large" className="justify-center mb-4" />
+            <h2 className="text-2xl font-bold text-white">Personal Login</h2>
+            <p className="text-purple-100 mt-2">Sign in to your personal account</p>
+          </div>
+          
+          <div className="space-y-6">
+            {/* Google Login Button */}
+            <button
+              onClick={handlePersonalLogin}
+              className="w-full bg-white hover:bg-gray-50 text-gray-900 font-semibold py-3 px-4 rounded-xl flex items-center justify-center space-x-3 transition duration-300 shadow-lg"
+            >
+              <svg className="w-5 h-5" viewBox="0 0 24 24">
+                <path fill="#4285F4" d="M22.56 12.25c0-.78-.07-1.53-.2-2.25H12v4.26h5.92c-.26 1.37-1.04 2.53-2.21 3.31v2.77h3.57c2.08-1.92 3.28-4.74 3.28-8.09z"/>
+                <path fill="#34A853" d="M12 23c2.97 0 5.46-.98 7.28-2.66l-3.57-2.77c-.98.66-2.23 1.06-3.71 1.06-2.86 0-5.29-1.93-6.16-4.53H2.18v2.84C3.99 20.53 7.7 23 12 23z"/>
+                <path fill="#FBBC05" d="M5.84 14.09c-.22-.66-.35-1.36-.35-2.09s.13-1.43.35-2.09V7.07H2.18C1.43 8.55 1 10.22 1 12s.43 3.45 1.18 4.93l2.85-2.22.81-.62z"/>
+                <path fill="#EA4335" d="M12 5.38c1.62 0 3.06.56 4.21 1.64l3.15-3.15C17.45 2.09 14.97 1 12 1 7.7 1 3.99 3.47 2.18 7.07l3.66 2.84c.87-2.6 3.3-4.53 6.16-4.53z"/>
+              </svg>
+              <span>Continue with Google</span>
+            </button>
+
+            <div className="relative">
+              <div className="absolute inset-0 flex items-center">
+                <div className="w-full border-t border-gray-300"></div>
+              </div>
+              <div className="relative flex justify-center text-sm">
+                <span className="px-2 bg-transparent text-gray-300">or continue with email</span>
+              </div>
+            </div>
+
+            {/* Email Login Form */}
+            <div className="space-y-4">
+              <input
+                type="email"
+                name="email"
+                value={formData.email}
+                onChange={handleInputChange}
+                placeholder="Enter your email"
+                className="w-full px-4 py-3 bg-white/10 border border-white/20 rounded-xl text-white placeholder-gray-300 focus:ring-2 focus:ring-purple-500 focus:border-transparent"
+              />
+              <input
+                type="password"
+                name="password"
+                value={formData.password}
+                onChange={handleInputChange}
+                placeholder="Enter your password"
+                className="w-full px-4 py-3 bg-white/10 border border-white/20 rounded-xl text-white placeholder-gray-300 focus:ring-2 focus:ring-purple-500 focus:border-transparent"
+              />
+              <button
+                onClick={handlePersonalLogin}
+                className="w-full bg-purple-600 hover:bg-purple-700 text-white py-3 rounded-xl font-semibold transition-colors"
+              >
+                Sign In
+              </button>
+            </div>
+          </div>
+          
+          <div className="flex justify-between mt-6">
+            <button
+              onClick={() => setCurrentView('selection')}
+              className="text-gray-300 hover:text-white transition-colors"
+            >
+              ← Back
+            </button>
+            <button className="text-purple-300 hover:text-purple-100 transition-colors text-sm">
+              Forgot Password?
+            </button>
+          </div>
+        </div>
+      </div>
+    );
+  }
+
+  // Business Registration View (Full Registration Form)
+  if (currentView === 'business-register') {
+    return (
+      <div className="min-h-screen bg-gradient-to-br from-purple-900 via-blue-900 to-indigo-900 flex items-center justify-center p-4">
+        <div className="bg-white/10 backdrop-blur-md rounded-2xl p-8 w-full max-w-lg max-h-[90vh] overflow-y-auto">
+          <div className="text-center mb-8">
+            <BudgetTalkLogo size="large" className="justify-center mb-4" />
+            <h2 className="text-2xl font-bold text-white">Create Business Account</h2>
+            <p className="text-purple-100 mt-2">Set up your business expense tracking</p>
+          </div>
+          
+          <div className="space-y-6">
+            {/* Google Register Button */}
+            <button
+              className="w-full bg-white hover:bg-gray-50 text-gray-900 font-semibold py-3 px-4 rounded-xl flex items-center justify-center space-x-3 transition duration-300 shadow-lg"
+            >
+              <svg className="w-5 h-5" viewBox="0 0 24 24">
+                <path fill="#4285F4" d="M22.56 12.25c0-.78-.07-1.53-.2-2.25H12v4.26h5.92c-.26 1.37-1.04 2.53-2.21 3.31v2.77h3.57c2.08-1.92 3.28-4.74 3.28-8.09z"/>
+                <path fill="#34A853" d="M12 23c2.97 0 5.46-.98 7.28-2.66l-3.57-2.77c-.98.66-2.23 1.06-3.71 1.06-2.86 0-5.29-1.93-6.16-4.53H2.18v2.84C3.99 20.53 7.7 23 12 23z"/>
+                <path fill="#FBBC05" d="M5.84 14.09c-.22-.66-.35-1.36-.35-2.09s.13-1.43.35-2.09V7.07H2.18C1.43 8.55 1 10.22 1 12s.43 3.45 1.18 4.93l2.85-2.22.81-.62z"/>
+                <path fill="#EA4335" d="M12 5.38c1.62 0 3.06.56 4.21 1.64l3.15-3.15C17.45 2.09 14.97 1 12 1 7.7 1 3.99 3.47 2.18 7.07l3.66 2.84c.87-2.6 3.3-4.53 6.16-4.53z"/>
+              </svg>
+              <span>Register with Google</span>
+            </button>
+
+            <div className="relative">
+              <div className="absolute inset-0 flex items-center">
+                <div className="w-full border-t border-gray-300"></div>
+              </div>
+              <div className="relative flex justify-center text-sm">
+                <span className="px-2 bg-transparent text-gray-300">or register manually</span>
+              </div>
+            </div>
+
+            {/* Registration Form */}
+            <div className="space-y-4">
+              <div>
+                <label className="block text-sm font-medium text-gray-200 mb-2">Business Name *</label>
+                <input
+                  type="text"
+                  name="businessName"
+                  value={formData.businessName}
+                  onChange={handleInputChange}
+                  placeholder="Enter your business name"
+                  className="w-full px-4 py-3 bg-white/10 border border-white/20 rounded-xl text-white placeholder-gray-300 focus:ring-2 focus:ring-purple-500 focus:border-transparent"
+                />
+              </div>
+
+              <div>
+                <label className="block text-sm font-medium text-gray-200 mb-2">Full Name *</label>
+                <input
+                  type="text"
+                  name="fullName"
+                  value={formData.fullName}
+                  onChange={handleInputChange}
+                  placeholder="Enter your full name"
+                  className="w-full px-4 py-3 bg-white/10 border border-white/20 rounded-xl text-white placeholder-gray-300 focus:ring-2 focus:ring-purple-500 focus:border-transparent"
+                />
+              </div>
+
+              <div>
+                <label className="block text-sm font-medium text-gray-200 mb-2">Email Address *</label>
+                <input
+                  type="email"
+                  name="email"
+                  value={formData.email}
+                  onChange={handleInputChange}
+                  placeholder="Enter your email"
+                  className="w-full px-4 py-3 bg-white/10 border border-white/20 rounded-xl text-white placeholder-gray-300 focus:ring-2 focus:ring-purple-500 focus:border-transparent"
+                />
+              </div>
+
+              <div>
+                <label className="block text-sm font-medium text-gray-200 mb-2">Phone Number</label>
+                <input
+                  type="tel"
+                  name="phone"
+                  value={formData.phone}
+                  onChange={handleInputChange}
+                  placeholder="Enter your phone number"
+                  className="w-full px-4 py-3 bg-white/10 border border-white/20 rounded-xl text-white placeholder-gray-300 focus:ring-2 focus:ring-purple-500 focus:border-transparent"
+                />
+              </div>
+
+              <div>
+                <label className="block text-sm font-medium text-gray-200 mb-2">Password *</label>
+                <input
+                  type="password"
+                  name="password"
+                  value={formData.password}
+                  onChange={handleInputChange}
+                  placeholder="Create a password"
+                  className="w-full px-4 py-3 bg-white/10 border border-white/20 rounded-xl text-white placeholder-gray-300 focus:ring-2 focus:ring-purple-500 focus:border-transparent"
+                />
+              </div>
+
+              <div>
+                <label className="block text-sm font-medium text-gray-200 mb-2">Confirm Password *</label>
+                <input
+                  type="password"
+                  name="confirmPassword"
+                  value={formData.confirmPassword}
+                  onChange={handleInputChange}
+                  placeholder="Confirm your password"
+                  className="w-full px-4 py-3 bg-white/10 border border-white/20 rounded-xl text-white placeholder-gray-300 focus:ring-2 focus:ring-purple-500 focus:border-transparent"
+                />
+              </div>
+
+              <button
+                onClick={handleBusinessRegister}
+                className="w-full bg-gradient-to-r from-green-600 to-teal-600 hover:from-green-700 hover:to-teal-700 text-white py-3 rounded-xl font-semibold transition-colors"
+              >
+                Create Business Account
+              </button>
+            </div>
+          </div>
+          
+          <div className="flex justify-center mt-6">
+            <button
+              onClick={() => setCurrentView('selection')}
+              className="text-gray-300 hover:text-white transition-colors"
+            >
+              ← Back to Selection
+            </button>
+          </div>
+        </div>
+      </div>
+    );
+  }
 };
 
 const LandingPage = ({ onGetStarted }) => {
