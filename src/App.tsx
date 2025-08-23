@@ -664,11 +664,11 @@ const LoginPage: React.FC<{ onLogin: (u: any) => void; onBack?: () => void }> = 
     setLoading(true);
     setTimeout(() => {
       const mockUser = {
-        name: accountType === 'personal' ? 'John Doe (Personal)' : 'Acme Corp (Business)',
+        name: accountType === 'personal' ? 'Ahmed Abdullah (Personal)' : 'Outskill (Business)',
         type: accountType,
-        email: accountType === 'personal' ? 'john.doe@gmail.com' : 'admin@acmecorp.com',
+        email: accountType === 'personal' ? 'Ahmed.aa0378@gmail.com' : 'admin@outskill.com',
         avatar: 'https://via.placeholder.com/40',
-        fullName: accountType === 'personal' ? 'John Doe' : 'Jane Admin'
+        fullName: accountType === 'personal' ? 'Ahmed Abdullah' : 'Jane Admin'
       };
       onLogin(mockUser);
     }, 700);
