@@ -815,7 +815,6 @@ import { useState } from "react";
 import { Routes, Route, Navigate } from "react-router-dom";
 
 // Pages
-import LandingPage from "./pages/LandingPage";
 
 // Your existing components/hooks
 import { Header } from "./components/Header";
