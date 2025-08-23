@@ -76,34 +76,64 @@ const ExpenseForm: React.FC<any> = ({ onClose, onSave, expenses, setExpenses }) 
     setFormData((p) => ({ ...p, [name]: value }));
   };
 
-const handleVoiceInput = async () => {
-  // start visual state
-  setIsVoiceRecording(true);
+// REPLACE your current handleVoiceInput with this version
+const handleVoiceInput = () => {
+  // Use the Web Speech API if available; otherwise just inform the user
+  const SpeechRecognition =
+    window.SpeechRecognition || window.webkitSpeechRecognition;
 
-  // try to get mic permission (no recording used in this mock, just permission)
-  try {
-    if (navigator?.mediaDevices?.getUserMedia) {
-      // ask permission; immediately stop the stream
-      const stream = await navigator.mediaDevices.getUserMedia({ audio: true });
-      stream.getTracks().forEach(t => t.stop());
-    }
-  } catch (err) {
-    // permission denied or not available – still proceed with mock
-    console.warn('Mic permission not granted (mock continues):', err);
+  if (!SpeechRecognition) {
+    alert(
+      "Voice input isn't supported in this browser. Please use Chrome or Edge, or enter the expense manually."
+    );
+    return;
   }
 
-  // simulate recognition result
-  setTimeout(() => {
-    setFormData(prev => ({
+  const recognition = new SpeechRecognition();
+  recognition.lang = "en-US";
+  recognition.interimResults = false;
+  recognition.maxAlternatives = 1;
+
+  setIsVoiceRecording(true);
+
+  recognition.onresult = (event) => {
+    const transcript = event.results[0][0].transcript.trim();
+
+    // Basic parsing: try to extract an amount like $12.34 or 12.34
+    const amountMatch = transcript.match(/(?:\$)?(\d+(?:\.\d+)?)/);
+    const possibleAmount = amountMatch ? amountMatch[1] : "";
+
+    // Very light category inference (optional, safe fallbacks)
+    const lowered = transcript.toLowerCase();
+    let inferredCategory = "";
+    if (/(food|lunch|dinner|cafe|restaurant|grocer)/.test(lowered))
+      inferredCategory = "Food & Dining";
+    else if (/(uber|lyft|taxi|bus|train|gas|transport)/.test(lowered))
+      inferredCategory = "Transportation";
+    else if (/(shop|mall|store|clothes|amazon)/.test(lowered))
+      inferredCategory = "Shopping";
+    else if (/(movie|cinema|netflix|concert|game)/.test(lowered))
+      inferredCategory = "Entertainment";
+
+    setFormData((prev) => ({
       ...prev,
-      description: 'Lunch at downtown cafe',
-      amount: '25',
-      category: 'Food & Dining'
+      description: transcript,                 // fill description with what was said
+      amount: possibleAmount || prev.amount,   // only set if we found a number
+      category: inferredCategory || prev.category, // only set if we inferred one
     }));
+  };
+
+  recognition.onerror = () => {
+    // Don't change any fields on error
+  };
+
+  recognition.onend = () => {
     setIsVoiceRecording(false);
-    alert('🎤 Added voice input: "Lunch at downtown cafe, $25, Food & Dining"');
-  }, 1200);
+  };
+
+  recognition.start();
 };
+
 
   const handleReceiptUpload = (e: React.ChangeEvent<HTMLInputElement>) => {
     const file = e.target.files?.[0] ?? null;
