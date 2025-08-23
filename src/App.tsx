@@ -1053,7 +1053,7 @@ const Dashboard = ({ user, onSignOut }) => {
         />
       )}
     </div>
-  );
+ );
 };
   const totalSpent = expenses.reduce((sum, e) => sum + e.amount, 0);
   const totalBudget = budgets.reduce((sum, b) => sum + b.budget, 0);
