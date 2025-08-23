@@ -369,22 +369,41 @@ const Dashboard: React.FC<{ user: any; onSignOut: () => void }> = ({ user, onSig
   const [showBudgetForm, setShowBudgetForm] = useState(false);
   const [showAnalytics, setShowAnalytics] = useState(false);
 
-  const handleVoiceExpense = () => {
-    if (isRecording) return;
-    setIsRecording(true);
-    setTimeout(() => {
-      const voice = [
-        { description: 'Coffee at Starbucks', amount: 8, category: 'Food & Dining' },
-        { description: 'Uber ride to office', amount: 15, category: 'Transportation' },
-        { description: 'Office supplies', amount: 22, category: 'Shopping' }
-      ];
-      const v = voice[Math.floor(Math.random() * voice.length)];
-      const newExpense = { id: Date.now(), ...v, description: `🎤 ${v.description}`, date: new Date().toISOString().split('T')[0] };
-      setExpenses((p) => [newExpense, ...p]);
-      setIsRecording(false);
-      alert(`✅ Added: ${newExpense.description} - $${newExpense.amount}`);
-    }, 1200);
-  };
+const handleVoiceExpense = async () => {
+  if (isRecording) return;
+  setIsRecording(true);
+
+  // optional permission ping
+  try {
+    if (navigator?.mediaDevices?.getUserMedia) {
+      const s = await navigator.mediaDevices.getUserMedia({ audio: true });
+      s.getTracks().forEach(t => t.stop());
+    }
+  } catch (e) {
+    console.warn('Mic permission not granted (mock continues):', e);
+  }
+
+  // pretend we recognized something
+  const samples = [
+    { description: 'Coffee at Starbucks', amount: 8,  category: 'Food & Dining' },
+    { description: 'Uber ride to office', amount: 15, category: 'Transportation' },
+    { description: 'Office supplies',     amount: 22, category: 'Shopping' }
+  ];
+  const v = samples[Math.floor(Math.random() * samples.length)];
+
+  setTimeout(() => {
+    const newExpense = {
+      id: Date.now(),
+      category: v.category,
+      amount: v.amount,
+      description: `🎤 ${v.description}`,
+      date: new Date().toISOString().split('T')[0]
+    };
+    setExpenses(prev => [newExpense, ...prev]);
+    setIsRecording(false);
+    alert(`✅ Added: ${newExpense.description} - $${newExpense.amount}`);
+  }, 1200);
+};
 
   const totalSpent = expenses.reduce((s, e) => s + e.amount, 0);
   const totalBudget = budgets.reduce((s, b) => s + b.budget, 0);
