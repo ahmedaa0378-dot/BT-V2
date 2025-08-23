@@ -811,88 +811,246 @@ const ExpenseForm = ({ onClose, onSave, expenses, setExpenses }) => {
   );
 };
 
-const LoginPage = ({ onLogin, onBack }) => {
-  const [currentView, setCurrentView] = useState('selection');
+import React, { useState } from "react";
+import { Routes, Route, Navigate } from "react-router-dom";
+
+// Pages
+import LandingPage from "./pages/LandingPage";
+
+// Your existing components/hooks
+import { Header } from "./components/Header";
+import { Dashboard } from "./components/Dashboard";
+import { ExpenseForm } from "./components/ExpenseForm";
+import { ExpenseList } from "./components/ExpenseList";
+import { BudgetManager } from "./components/BudgetManager";
+import { ExpenseSplitter } from "./components/ExpenseSplitter";
+import { useExpenses } from "./hooks/useExpenses";
+import { useBudgets } from "./hooks/useBudgets";
+import { useVoiceRecording } from "./hooks/useVoiceRecording";
+
+// Auth utils
+import { useAuth } from "./hooks/useAuth";
+import { supabase } from "./lib/supabaseClient";
+
+// -------------------------
+// Types
+// -------------------------
+type View = "dashboard" | "add-expense" | "expenses" | "budgets" | "split-expense";
+
+// -------------------------
+// BudgetTalkApp (your existing UI)
+// -------------------------
+function BudgetTalkApp() {
+  const [currentView, setCurrentView] = useState<View>("dashboard");
+  const [selectedExpenseId, setSelectedExpenseId] = useState<string | null>(null);
+
+  const { expenses, addExpense, updateExpense, deleteExpense } = useExpenses();
+  const { budgets, addBudget, updateBudget, deleteBudget } = useBudgets();
+  const {
+    isListening,
+    transcript,
+    interimTranscript,
+    startListening,
+    stopListening,
+    isSupported,
+  } = useVoiceRecording();
+
+  const selectedExpense = selectedExpenseId
+    ? expenses.find((exp) => exp.id === selectedExpenseId)
+    : null;
+
+  const handleExpenseSelect = (expenseId: string) => {
+    setSelectedExpenseId(expenseId);
+    setCurrentView("add-expense");
+  };
+
+  const handleExpenseSubmit = () => {
+    setSelectedExpenseId(null);
+    setCurrentView("expenses");
+  };
+
+  const renderCurrentView = () => {
+    switch (currentView) {
+      case "dashboard":
+        return (
+          <Dashboard
+            expenses={expenses}
+            budgets={budgets}
+            onAddExpense={() => setCurrentView("add-expense")}
+            onViewExpenses={() => setCurrentView("expenses")}
+            onManageBudgets={() => setCurrentView("budgets")}
+          />
+        );
+      case "add-expense":
+        return (
+          <ExpenseForm
+            expense={selectedExpense}
+            budgets={budgets}
+            onSubmit={(expenseData) => {
+              if (selectedExpense) {
+                updateExpense(selectedExpense.id, expenseData);
+              } else {
+                (async () => {
+                  try {
+                    await addExpense(expenseData);
+                  } catch (error) {
+                    console.error("Error adding expense:", error);
+                  }
+                })();
+              }
+              handleExpenseSubmit();
+            }}
+            onCancel={() => {
+              setSelectedExpenseId(null);
+              setCurrentView("dashboard");
+            }}
+            transcript={transcript}
+            interimTranscript={interimTranscript}
+            isListening={isListening}
+            onStartListening={startListening}
+            onStopListening={stopListening}
+            isVoiceSupported={isSupported}
+          />
+        );
+      case "expenses":
+        return (
+          <ExpenseList
+            expenses={expenses}
+            budgets={budgets}
+            onEditExpense={handleExpenseSelect}
+            onDeleteExpense={deleteExpense}
+            onAddExpense={() => setCurrentView("add-expense")}
+            onSplitExpense={(expenseId) => {
+              setSelectedExpenseId(expenseId);
+              setCurrentView("split-expense");
+            }}
+          />
+        );
+      case "budgets":
+        return (
+          <BudgetManager
+            budgets={budgets}
+            expenses={expenses}
+            onAddBudget={addBudget}
+            onUpdateBudget={updateBudget}
+            onDeleteBudget={deleteBudget}
+          />
+        );
+      case "split-expense":
+        return (
+          <ExpenseSplitter
+            expense={selectedExpense}
+            onSplitComplete={(splits) => {
+              if (selectedExpense) {
+                updateExpense(selectedExpense.id, { ...selectedExpense, splits });
+              }
+              setSelectedExpenseId(null);
+              setCurrentView("expenses");
+            }}
+            onCancel={() => {
+              setSelectedExpenseId(null);
+              setCurrentView("expenses");
+            }}
+          />
+        );
+      default:
+        return null;
+    }
+  };
+
+  return (
+    <div className="min-h-screen bg-white dark:bg-base-900">
+      <Header
+        currentView={currentView}
+        onViewChange={setCurrentView}
+        isListening={isListening}
+      />
+      <main className="container mx-auto px-4 py-6">{renderCurrentView()}</main>
+    </div>
+  );
+}
+
+// -------------------------
+// LoginPage (inline inside App.tsx)
+// -------------------------
+const LoginPage: React.FC<{ onLogin?: (info: any) => void; onBack?: () => void }> = ({
+  onLogin,
+  onBack,
+}) => {
+  const [currentView, setCurrentView] = useState<"selection" | "personal-login" | "business-register">(
+    "selection"
+  );
   const [formData, setFormData] = useState({
-    email: '',
-    password: '',
-    confirmPassword: '',
-    businessName: '',
-    fullName: '',
-    phone: ''
+    email: "",
+    password: "",
+    confirmPassword: "",
+    businessName: "",
+    fullName: "",
+    phone: "",
   });
   const [loading, setLoading] = useState(false);
   const { signInWithGoogle } = useAuth();
 
-  const handleInputChange = (e) => {
+  const handleInputChange = (e: React.ChangeEvent<HTMLInputElement>) => {
     const { name, value } = e.target;
-    setFormData(prev => ({
+    setFormData((prev) => ({
       ...prev,
-      [name]: value
+      [name]: value,
     }));
   };
 
-  const handleGoogleAuth = async (accountType) => {
+  const handleGoogleAuth = async (accountType: "personal" | "business") => {
     setLoading(true);
-    const { error } = await signInWithGoogle();
-    
-    if (!error) {
-      onLogin({ 
-        name: accountType === 'personal' ? 'Personal User' : 'Business User', 
-        type: accountType,
-        email: 'user@example.com'
-      });
-    } else {
-      alert('Authentication failed. Please try again.');
+    const { error } = await signInWithGoogle(); // redirects to /auth/callback
+    if (error) {
+      alert("Authentication failed. Please try again.");
+      setLoading(false);
     }
-    setLoading(false);
+    // Do not call onLogin here; OAuth flow will continue via /auth/callback.
   };
 
-  const handlePersonalLogin = () => {
-    if (formData.email) {
-      onLogin({ 
-        name: 'Personal User', 
-        type: 'personal',
-        email: formData.email 
-      });
-    } else {
-      alert('Please enter your email');
+  const handlePersonalLogin = async () => {
+    if (!formData.email) {
+      alert("Please enter your email");
+      return;
     }
+    // TODO: Replace with supabase.auth.signInWithPassword if you add email/pwd
+    onLogin?.({ name: "Personal User", type: "personal", email: formData.email });
+    window.location.assign("/app");
   };
 
   const handleBusinessRegister = () => {
     if (!formData.email || !formData.businessName || !formData.fullName) {
-      alert('Please fill in all required fields');
+      alert("Please fill in all required fields");
       return;
     }
-    
     if (formData.password !== formData.confirmPassword) {
-      alert('Passwords do not match');
+      alert("Passwords do not match");
       return;
     }
-    
-    onLogin({ 
-      name: formData.businessName, 
-      type: 'business',
+    onLogin?.({
+      name: formData.businessName,
+      type: "business",
       email: formData.email,
       fullName: formData.fullName,
-      phone: formData.phone
+      phone: formData.phone,
     });
+    window.location.assign("/app");
   };
 
-  if (currentView === 'selection') {
+  // --- UI states (your original layouts with tiny tweaks) ---
+  if (currentView === "selection") {
     return (
       <div className="min-h-screen bg-gradient-to-br from-purple-900 via-blue-900 to-indigo-900 flex items-center justify-center">
         <div className="bg-white/10 backdrop-blur-md rounded-2xl p-8 w-full max-w-md">
           <div className="text-center mb-8">
-            <BudgetTalkLogo size="large" className="justify-center mb-4" />
             <h2 className="text-2xl font-bold text-white">Welcome to BudgetTalk</h2>
             <p className="text-purple-100 mt-2">Choose your account type to get started</p>
           </div>
-          
+
           <div className="space-y-4">
             <button
-              onClick={() => setCurrentView('personal-login')}
+              onClick={() => setCurrentView("personal-login")}
               className="w-full bg-gradient-to-r from-purple-600 to-blue-600 text-white py-4 rounded-xl font-semibold hover:from-purple-700 hover:to-blue-700 transition-all duration-300 shadow-lg hover:shadow-xl transform hover:-translate-y-0.5"
             >
               <div className="text-left px-4">
@@ -900,9 +1058,9 @@ const LoginPage = ({ onLogin, onBack }) => {
                 <div className="text-sm opacity-90">Track your personal expenses and budgets</div>
               </div>
             </button>
-            
+
             <button
-              onClick={() => setCurrentView('business-register')}
+              onClick={() => setCurrentView("business-register")}
               className="w-full bg-gradient-to-r from-green-600 to-teal-600 text-white py-4 rounded-xl font-semibold hover:from-green-700 hover:to-teal-700 transition-all duration-300 shadow-lg hover:shadow-xl transform hover:-translate-y-0.5"
             >
               <div className="text-left px-4">
@@ -911,9 +1069,9 @@ const LoginPage = ({ onLogin, onBack }) => {
               </div>
             </button>
           </div>
-          
+
           <button
-            onClick={onBack}
+            onClick={onBack ?? (() => (window.location.href = "/"))}
             className="w-full mt-6 text-gray-300 hover:text-white transition-colors py-2"
           >
             ← Back to Home
@@ -923,19 +1081,18 @@ const LoginPage = ({ onLogin, onBack }) => {
     );
   }
 
-  if (currentView === 'personal-login') {
+  if (currentView === "personal-login") {
     return (
       <div className="min-h-screen bg-gradient-to-br from-purple-900 via-blue-900 to-indigo-900 flex items-center justify-center">
         <div className="bg-white/10 backdrop-blur-md rounded-2xl p-8 w-full max-w-md">
           <div className="text-center mb-8">
-            <BudgetTalkLogo size="large" className="justify-center mb-4" />
             <h2 className="text-2xl font-bold text-white">Personal Login</h2>
             <p className="text-purple-100 mt-2">Sign in to your personal account</p>
           </div>
-          
+
           <div className="space-y-6">
             <button
-              onClick={() => handleGoogleAuth('personal')}
+              onClick={() => handleGoogleAuth("personal")}
               disabled={loading}
               className="w-full bg-white hover:bg-gray-50 text-gray-900 font-semibold py-3 px-4 rounded-xl flex items-center justify-center space-x-3 transition duration-300 shadow-lg disabled:opacity-50 disabled:cursor-not-allowed"
             >
@@ -949,7 +1106,7 @@ const LoginPage = ({ onLogin, onBack }) => {
                   <path fill="#EA4335" d="M12 5.38c1.62 0 3.06.56 4.21 1.64l3.15-3.15C17.45 2.09 14.97 1 12 1 7.7 1 3.99 3.47 2.18 7.07l3.66 2.84c.87-2.6 3.3-4.53 6.16-4.53z"/>
                 </svg>
               )}
-              <span>{loading ? 'Signing in...' : 'Continue with Google'}</span>
+              <span>{loading ? "Signing in..." : "Continue with Google"}</span>
             </button>
 
             <div className="relative">
@@ -986,10 +1143,10 @@ const LoginPage = ({ onLogin, onBack }) => {
               </button>
             </div>
           </div>
-          
+
           <div className="flex justify-between mt-6">
             <button
-              onClick={() => setCurrentView('selection')}
+              onClick={() => setCurrentView("selection")}
               className="text-gray-300 hover:text-white transition-colors"
             >
               ← Back
@@ -1003,19 +1160,18 @@ const LoginPage = ({ onLogin, onBack }) => {
     );
   }
 
-  if (currentView === 'business-register') {
+  if (currentView === "business-register") {
     return (
       <div className="min-h-screen bg-gradient-to-br from-purple-900 via-blue-900 to-indigo-900 flex items-center justify-center p-4">
         <div className="bg-white/10 backdrop-blur-md rounded-2xl p-8 w-full max-w-lg max-h-[90vh] overflow-y-auto">
           <div className="text-center mb-8">
-            <BudgetTalkLogo size="large" className="justify-center mb-4" />
             <h2 className="text-2xl font-bold text-white">Create Business Account</h2>
             <p className="text-purple-100 mt-2">Set up your business expense tracking</p>
           </div>
-          
+
           <div className="space-y-6">
             <button
-              onClick={() => handleGoogleAuth('business')}
+              onClick={() => handleGoogleAuth("business")}
               disabled={loading}
               className="w-full bg-white hover:bg-gray-50 text-gray-900 font-semibold py-3 px-4 rounded-xl flex items-center justify-center space-x-3 transition duration-300 shadow-lg disabled:opacity-50 disabled:cursor-not-allowed"
             >
@@ -1029,7 +1185,7 @@ const LoginPage = ({ onLogin, onBack }) => {
                   <path fill="#EA4335" d="M12 5.38c1.62 0 3.06.56 4.21 1.64l3.15-3.15C17.45 2.09 14.97 1 12 1 7.7 1 3.99 3.47 2.18 7.07l3.66 2.84c.87-2.6 3.3-4.53 6.16-4.53z"/>
                 </svg>
               )}
-              <span>{loading ? 'Registering...' : 'Register with Google'}</span>
+              <span>{loading ? "Registering..." : "Register with Google"}</span>
             </button>
 
             <div className="relative">
@@ -1041,9 +1197,12 @@ const LoginPage = ({ onLogin, onBack }) => {
               </div>
             </div>
 
+            {/* business fields */}
             <div className="space-y-4">
               <div>
-                <label className="block text-sm font-medium text-gray-200 mb-2">Business Name *</label>
+                <label className="block text-sm font-medium text-gray-200 mb-2">
+                  Business Name *
+                </label>
                 <input
                   type="text"
                   name="businessName"
@@ -1122,20 +1281,8 @@ const LoginPage = ({ onLogin, onBack }) => {
               </button>
             </div>
           </div>
-          
-          <div className="flex justify-center mt-6">
-            <button
-              onClick={() => setCurrentView('selection')}
-              className="text-gray-300 hover:text-white transition-colors"
-            >
-              ← Back to Selection
-            </button>
-          </div>
-        </div>
-      </div>
-    );
-  }
-};
+
+          <div className="flex justi
 
 const LandingPage = ({ onGetStarted }) => {
   const [isMenuOpen, setIsMenuOpen] = useState(false);
