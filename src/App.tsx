@@ -59,8 +59,8 @@ const BudgetTalkLogo = ({ size = "default", className = "" }) => {
     </div>
   );
 };
-const supabaseUrl = 'https://zqbrtdrnqsncphjbugps.supabase.co'
-const supabaseAnonKey = 'eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJpc3MiOiJzdXBhYmFzZSIsInJlZiI6InpxYnJ0ZHJucXNuY3BoamJ1Z3BzIiwicm9sZSI6ImFub24iLCJpYXQiOjE3NTU5MTA2MDQsImV4cCI6MjA3MTQ4NjYwNH0.CBCuEXChVLlxWIikgM0hPwL2a8AIku4eDHAVtf8JEBI'
+const supabaseUrl = 'https://zqbrtdrnqsncphjbugps.supabase.co';
+const supabaseAnonKey = 'eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJpc3MiOiJzdXBhYmFzZSIsInJlZiI6InpxYnJ0ZHJucXNuY3BoamJ1Z3BzIiwicm9sZSI6ImFub24iLCJpYXQiOjE3NTU5MTA2MDQsImV4cCI6MjA3MTQ4NjYwNH0.CBCuEXChVLlxWIikgM0hPwL2a8AIku4eDHAVtf8JEBI';
 const supabase = {
   auth: {
     signInWithOAuth: async (options) => {
@@ -1282,7 +1282,21 @@ const LoginPage: React.FC<{ onLogin?: (info: any) => void; onBack?: () => void }
             </div>
           </div>
 
-          <div className="flex justi
+          <div className="flex justify-between mt-6">
+            <button
+              onClick={() => setCurrentView("selection")}
+              className="text-gray-300 hover:text-white transition-colors"
+            >
+              ← Back
+            </button>
+          </div>
+        </div>
+      </div>
+    );
+  }
+
+  return null;
+};
 
 const LandingPage = ({ onGetStarted }) => {
   const [isMenuOpen, setIsMenuOpen] = useState(false);
