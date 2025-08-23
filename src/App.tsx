@@ -175,25 +175,6 @@ const useAuth = () => {
   };
 };
 
-const useAuth = () => {
-  const [user, setUser] = useState<any>(null);
-  const [loading, setLoading] = useState(true);
-  useEffect(() => {
-    (async () => {
-      const { data: { session } }: any = await supabase.auth.getSession();
-      setUser(session?.user ?? null);
-      setLoading(false);
-    })();
-    const { data: { subscription } }: any = supabase.auth.onAuthStateChange((_e: any, session: any) => {
-      setUser(session?.user ?? null);
-      setLoading(false);
-    });
-    return () => subscription?.unsubscribe();
-  }, []);
-
-  const signInWithGoogle = async () => {
-    const { error }: any = await supabase.auth.signInWithOAuth({
-      provider: "google",
       options: { redirectTo: window.location.origin },
     });
     if (error) return { error };
